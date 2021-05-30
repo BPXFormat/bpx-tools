@@ -30,6 +30,8 @@ use std::path::Path;
 
 use clap::{clap_app, AppSettings};
 
+use crate::result::Error;
+
 mod bpxinfo;
 mod pack;
 mod printsd;
@@ -37,9 +39,16 @@ mod result;
 mod type_ext_maps;
 mod unpack;
 
-fn error(err: &std::io::Error)
+fn error(err: &result::Error)
 {
-    eprintln!("{}", err);
+    match err
+    {
+        Error::Bpx(e) => eprintln!("BPX error: {}", e),
+        Error::Io(e) => eprintln!("IO error: {}", e),
+        Error::Parsing(e) => eprintln!("Parsing error: {}", e),
+        Error::SectionNotFound(v) => eprintln!("Could not find section with index {}", v),
+        Error::BinaryOutput => eprintln!("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue")
+    };
     std::process::exit(1);
 }
 
