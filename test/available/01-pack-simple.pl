@@ -1,12 +1,12 @@
 $Test = {
     Name => "Pack (SIMPLE)",
-    Command => "-f test.bpx pack test/LICENSE.txt",
+    Command => "-f test.bpx pack test/LICENSE_LF.txt",
     Description => "Test the pack command",
     Status => 0
 };
 
 sub TestBegin {
-    CRLFToLF("../LICENSE.txt", "test/LICENSE.txt");
+    CRLFToLF("test/LICENSE.txt", "test/LICENSE_LF.txt");
 }
 
 sub TestEnd {
