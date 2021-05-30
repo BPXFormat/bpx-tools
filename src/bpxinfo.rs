@@ -107,7 +107,6 @@ fn print_metadata<TInterface: Interface>(bpx: &TInterface, hex: bool) -> Result<
     return Ok(());
 }
 
-//Crazy unlogical syntax ahead. Required cause somehow rust does not understand what mut means
 fn print_section<TInterface: Interface>(
     bpx: &mut TInterface,
     section_id_str: &str,
