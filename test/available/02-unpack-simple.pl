@@ -10,8 +10,8 @@ sub TestBegin {
 }
 
 sub TestEnd {
-    my $res = EnsureEqual("LICENSE.txt", "test/LICENSE.txt");
-    unlink("LICENSE.txt");
-    unlink("test/LICENSE.txt");
+    my $res = EnsureEqual("LICENSE_LF.txt", "test/LICENSE_LF.txt");
+    unlink("LICENSE_LF.txt");
+    unlink("test/LICENSE_LF.txt");
     return $res;
 }
