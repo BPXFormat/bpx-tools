@@ -26,20 +26,25 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::Path;
+use std::{fs::File, path::Path};
+
+use bpx::{bpxp::encoder::PackageBuilder, encoder::Encoder};
 use clap::ArgMatches;
-use std::io::Result;
-use bpx::bpxp;
+
+use super::result::Result;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut encoder = bpxp::Encoder::new(file)?;
+    let mut file = File::create(file)?;
+    let mut bpx = Encoder::new(&mut file)?;
+    let mut encoder = PackageBuilder::new()
+        .with_variant(['B' as u8, 'D' as u8])
+        .build(&mut bpx)?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
-    for v in files
-    {
-        encoder.pack(Path::new(v))?;
+    for v in files {
+        encoder.pack(&mut bpx, Path::new(v))?;
     }
-    encoder.save()?;
+    bpx.save()?;
     return Ok(());
 }

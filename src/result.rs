@@ -26,17 +26,31 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, path::Path};
+use std::string::String;
 
-use bpx::{bpxp::decoder::PackageDecoder, decoder::Decoder};
-
-use super::result::Result;
-
-pub fn run(file: &Path) -> Result<()>
+pub enum Error
 {
-    let mut file = File::open(file)?;
-    let mut bpx = Decoder::new(&mut file)?;
-    let mut decoder = PackageDecoder::read(&mut bpx)?;
-    decoder.unpack(&mut bpx, Path::new("."))?;
-    return Ok(());
+    Bpx(bpx::error::Error),
+    Io(std::io::Error),
+    Parsing(String),
+    SectionNotFound(u32),
+    BinaryOutput
 }
+
+impl From<std::io::Error> for Error
+{
+    fn from(e: std::io::Error) -> Self
+    {
+        return Error::Io(e);
+    }
+}
+
+impl From<bpx::error::Error> for Error
+{
+    fn from(e: bpx::error::Error) -> Self
+    {
+        return Error::Bpx(e);
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

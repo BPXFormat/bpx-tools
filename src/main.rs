@@ -26,15 +26,16 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use clap::clap_app;
-use clap::AppSettings;
 use std::path::Path;
+
+use clap::{clap_app, AppSettings};
 
 mod bpxinfo;
 mod pack;
-mod unpack;
-mod type_ext_maps;
 mod printsd;
+mod result;
+mod type_ext_maps;
+mod unpack;
 
 fn error(err: &std::io::Error)
 {
@@ -42,7 +43,8 @@ fn error(err: &std::io::Error)
     std::process::exit(1);
 }
 
-fn main() {
+fn main()
+{
     let matches = clap_app!(bpxd =>
         (version: "1.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
@@ -65,29 +67,25 @@ fn main() {
         (@subcommand unpack =>
             (about: "Unpacks a given BPX type P (Package) file")
         )
-    ).setting(AppSettings::SubcommandRequiredElseHelp).get_matches();
+    )
+    .setting(AppSettings::SubcommandRequiredElseHelp)
+    .get_matches();
     let file = matches.value_of("file").unwrap();
 
-    if let Some(matches) = matches.subcommand_matches("info")
-    {
-        match bpxinfo::run(Path::new(file), matches)
-        {
+    if let Some(matches) = matches.subcommand_matches("info") {
+        match bpxinfo::run(Path::new(file), matches) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }
     }
-    if let Some(matches) = matches.subcommand_matches("pack")
-    {
-        match pack::run(Path::new(file), matches)
-        {
+    if let Some(matches) = matches.subcommand_matches("pack") {
+        match pack::run(Path::new(file), matches) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }
     }
-    if matches.subcommand_matches("unpack").is_some()
-    {
-        match unpack::run(Path::new(file))
-        {
+    if matches.subcommand_matches("unpack").is_some() {
+        match unpack::run(Path::new(file)) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }

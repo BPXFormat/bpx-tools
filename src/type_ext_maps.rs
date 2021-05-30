@@ -28,8 +28,7 @@
 
 fn bpxp_type_ext_map(block: &[u8; 16])
 {
-    match block[0]
-    {
+    match block[0] {
         0x0 => println!("Architecture: x86_64"),
         0x1 => println!("Architecture: aarch64"),
         0x2 => println!("Architecture: x86"),
@@ -37,8 +36,7 @@ fn bpxp_type_ext_map(block: &[u8; 16])
         0x4 => println!("Architecture: Any"),
         _ => println!("Architecture: Unknown")
     }
-    match block[1]
-    {
+    match block[1] {
         0x0 => println!("Platform: Linux"),
         0x1 => println!("Platform: Mac"),
         0x2 => println!("Platform: Windows"),
@@ -49,10 +47,9 @@ fn bpxp_type_ext_map(block: &[u8; 16])
     println!("Generator: {}{}", block[2] as char, block[3] as char);
 }
 
-pub fn get_type_ext_map(btype: u8) -> Option<fn (block: &[u8; 16])>
+pub fn get_type_ext_map(btype: u8) -> Option<fn(block: &[u8; 16])>
 {
-    match btype
-    {
+    match btype {
         0x50 => Some(bpxp_type_ext_map),
         _ => None
     }

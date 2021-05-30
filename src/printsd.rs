@@ -26,18 +26,17 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use bpx::sd::Value;
-use bpx::sd::Object;
-use bpx::sd::Array;
 use std::string::String;
-use std::io::Result;
+
+use bpx::sd::{Array, DebugSymbols, Object, Value};
+
+use super::result::Result;
 
 fn gen_layer_prefix(layer: usize) -> String
 {
     let mut res = String::new();
 
-    for _ in 0..layer
-    {
+    for _ in 0..layer {
         res.push('\t');
     }
     return res;
@@ -45,8 +44,7 @@ fn gen_layer_prefix(layer: usize) -> String
 
 fn print_value(layer: usize, value: &Value) -> Result<()>
 {
-    match value
-    {
+    match value {
         Value::Null => println!("NULL"),
         Value::Uint8(v) => println!("(Uint8) {}", v),
         Value::Uint16(v) => println!("(Uint16) {}", v),
@@ -59,14 +57,10 @@ fn print_value(layer: usize, value: &Value) -> Result<()>
         Value::Float(v) => println!("(Float) {}", v),
         Value::Double(v) => println!("(Double) {}", v),
         Value::String(v) => println!("{}", v),
-        Value::Bool(v) =>
-        {
-            if *v
-            {
+        Value::Bool(v) => {
+            if *v {
                 println!("true");
-            }
-            else
-            {
+            } else {
                 println!("false");
             }
         },
@@ -79,8 +73,7 @@ fn print_value(layer: usize, value: &Value) -> Result<()>
 fn print_array(layer: usize, array: &Array) -> Result<()>
 {
     println!("[");
-    for i in 0..array.len()
-    {
+    for i in 0..array.len() {
         print_value(layer, &array[i])?;
     }
     println!("{}]", gen_layer_prefix(layer - 1));
@@ -90,12 +83,24 @@ fn print_array(layer: usize, array: &Array) -> Result<()>
 pub fn print_object(layer: usize, object: &Object) -> Result<()>
 {
     let prefix = gen_layer_prefix(layer);
-    let debugger = bpx::sd::DebugSymbols::load(object)?;
+    let debugger = match DebugSymbols::read(object) {
+        Err(e) => {
+            eprintln!("Warning: failed to read Object debug layer ({})", e);
+            None
+        },
+        Ok(v) => Some(v)
+    };
 
     println!("{{");
-    for key in object.get_keys()
-    {
-        print!("{} {}: ", prefix, debugger.lookup(*key));
+    for key in object.get_keys() {
+        let keyname = match &debugger {
+            None => format!("{}", key),
+            Some(d) => match d.lookup(*key) {
+                None => format!("{}", key),
+                Some(name) => String::from(name)
+            }
+        };
+        print!("{} {}: ", prefix, keyname);
         print_value(layer, &object[*key])?;
     }
     println!("{}}}", gen_layer_prefix(layer - 1));

@@ -26,71 +26,60 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::io::Result;
-use bpx::bpx::Decoder;
-use clap::ArgMatches;
-use std::path::Path;
-use std::string::String;
-use super::type_ext_maps::get_type_ext_map;
-use std::io::Error;
-use std::io::ErrorKind;
-use std::fs::File;
-use std::io::Write;
+use std::{fs::File, io::Write, path::Path, string::String};
 
-fn print_main_header(bpx: &Decoder)
+use bpx::{decoder::Decoder, Interface};
+use clap::ArgMatches;
+
+use super::{result::Result, type_ext_maps::get_type_ext_map};
+use crate::result::Error;
+
+fn print_main_header<TInterface: Interface>(bpx: &TInterface)
 {
     println!("====> BPX Main Header <====");
-    println!("Type: {}", bpx.main_header.btype as char);
-    println!("Version: {}", bpx.main_header.version);
-    println!("File size: {}", bpx.main_header.file_size);
-    println!("Number of sections: {}", bpx.main_header.section_num);
+    println!("Type: {}", bpx.get_main_header().btype as char);
+    println!("Version: {}", bpx.get_main_header().version);
+    println!("File size: {}", bpx.get_main_header().file_size);
+    println!("Number of sections: {}", bpx.get_main_header().section_num);
     println!("====> End <====");
-    println!("");
+    println!();
 }
 
-fn print_sht(bpx: &Decoder)
+fn print_sht<TInterface: Interface>(bpx: &TInterface)
 {
     println!("====> BPX Section Header Table <====");
-    for i in 0..bpx.main_header.section_num
-    {
-        let section = bpx.get_section_by_index(i as usize);
+    for i in 0..bpx.get_main_header().section_num {
+        let section = bpx.get_section_header(bpx.find_section_by_index(i).unwrap());
         println!("Section #{}:", i);
         println!("\tType: {}", section.btype);
         println!("\tSize (after compression): {}", section.csize);
         println!("\tSize: {}", section.size);
         let mut flags = String::new();
-        if section.flags & 0x1 == 0x1
-        {
+        if section.flags & 0x1 == 0x1 {
             flags.push_str(" | CompressZlib");
         }
-        if section.flags & 0x2 == 0x2
-        {
+        if section.flags & 0x2 == 0x2 {
             flags.push_str(" | CompressXZ");
         }
-        if section.flags & 0x4 == 0x4
-        {
+        if section.flags & 0x4 == 0x4 {
             flags.push_str(" | CheckCrc32");
         }
-        if section.flags & 0x8 == 0x8
-        {
+        if section.flags & 0x8 == 0x8 {
             flags.push_str(" | CheckWeak");
         }
-        if section.flags & 0x8 != 0x8 && section.flags & 0x4 != 0x4
-        {
+        if section.flags & 0x8 != 0x8 && section.flags & 0x4 != 0x4 {
             flags.push_str(" | CheckNone");
         }
         println!("\tFlags: {}", &flags[2..]);
     }
     println!("====> End <====");
-    println!("");
+    println!();
 }
 
 fn hex_print(block: &[u8], output: &mut dyn Write) -> Result<()>
 {
-    for i in 0..block.len()
-    {
-        if i != 0 && i % 16 == 0
-        {
+    for i in 0..block.len() {
+        if i != 0 && i % 16 == 0 {
             writeln!(output, "")?;
         }
         write!(output, "{:02X} ", block[i])?;
@@ -98,79 +87,74 @@ fn hex_print(block: &[u8], output: &mut dyn Write) -> Result<()>
     return Ok(());
 }
 
-fn print_metadata(bpx: &Decoder, hex: bool) -> Result<()>
+fn print_metadata<TInterface: Interface>(bpx: &TInterface, hex: bool) -> Result<()>
 {
     println!("====> BPX TypeExt <====");
-    if hex
-    {
-        hex_print(&bpx.main_header.type_ext, &mut std::io::stdout())?;
-        println!("");
-    }
-    else
-    {
-        match get_type_ext_map(bpx.main_header.btype)
-        {
-            Some(func) => func(&bpx.main_header.type_ext),
-            None =>
-            {
-                hex_print(&bpx.main_header.type_ext, &mut std::io::stdout())?;
-                println!("");
+    if hex {
+        hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
+        println!();
+    } else {
+        match get_type_ext_map(bpx.get_main_header().btype) {
+            Some(func) => func(&bpx.get_main_header().type_ext),
+            None => {
+                hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
+                println!();
             }
         }
     }
     println!("====> End <====");
-    println!("");
+    println!();
     return Ok(());
 }
 
 //Crazy unlogical syntax ahead. Required cause somehow rust does not understand what mut means
-fn print_section(bpx: &mut Decoder, section_id_str: &str, mut out_file: Option<&mut dyn Write>, hex: bool, force: bool) -> Result<()>
+fn print_section<TInterface: Interface>(
+    bpx: &mut TInterface,
+    section_id_str: &str,
+    mut out_file: Option<&mut dyn Write>,
+    hex: bool,
+    force: bool
+) -> Result<()>
 {
-    let section_id: usize = match section_id_str.parse()
-    {
+    let section_id: u32 = match section_id_str.parse() {
         Ok(id) => id,
-        Err(e) => return Err(Error::new(ErrorKind::InvalidInput, format!("Could not parse section index {} ({})", section_id_str, e)))
+        Err(e) => {
+            return Err(Error::Parsing(format!(
+                "Could not parse section index {} ({})",
+                section_id_str, e
+            )))
+        },
     };
-    let section = match bpx.find_section_by_index(section_id)
-    {
+    let section = match bpx.find_section_by_index(section_id) {
         Some(section) => section,
-        None => return Err(Error::new(ErrorKind::InvalidInput, format!("Could not find section with index {}", section_id)))
+        None => return Err(Error::SectionNotFound(section_id))
     };
-    let mut data = bpx.open_section(&section)?;
+    let mut data = bpx.open_section(section)?;
 
-    if hex
-    {
+    if hex {
         let mut buf: [u8; 8192] = [0; 8192];
         let mut res = data.read(&mut buf)?;
-        while res > 0
-        {
-            match out_file
-            {
+        while res > 0 {
+            match out_file {
                 Some(ref mut v) => hex_print(&buf[0..res], v)?,
                 None => hex_print(&buf[0..res], &mut std::io::stdout())?
             }
             res = data.read(&mut buf)?;
         }
-        println!("");
-    }
-    else
-    {
-        if !force && out_file.is_none()
-        {
-            return Err(Error::new(ErrorKind::Interrupted, "Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue"));
+        println!();
+    } else {
+        if !force && out_file.is_none() {
+            return Err(Error::BinaryOutput);
         }
         let mut buf: [u8; 8192] = [0; 8192];
         let mut res = data.read(&mut buf)?;
-        while res > 0
-        {
-            match out_file
-            {
-                Some(ref mut v) =>
-                { //Rust is an annoying language unable to understand that there's no return!
+        while res > 0 {
+            match out_file {
+                Some(ref mut v) => {
+                    //Rust is an annoying language unable to understand that there's no return!
                     v.write(&buf[0..res])?;
                 },
-                None =>
-                {
+                None => {
                     std::io::stdout().write(&buf[0..res])?;
                 }
             }
@@ -180,54 +164,62 @@ fn print_section(bpx: &mut Decoder, section_id_str: &str, mut out_file: Option<&
     return Ok(());
 }
 
-fn print_structured_data(bpx: &mut Decoder, section_id_str: &str) -> Result<()>
+fn print_structured_data<TInterface: Interface>(bpx: &mut TInterface, section_id_str: &str) -> Result<()>
 {
-    let section_id: usize = match section_id_str.parse()
-    {
+    let section_id: u32 = match section_id_str.parse() {
         Ok(id) => id,
-        Err(e) => return Err(Error::new(ErrorKind::InvalidInput, format!("Could not parse section index {} ({})", section_id_str, e)))
+        Err(e) => {
+            return Err(Error::Parsing(format!(
+                "Could not parse section index {} ({})",
+                section_id_str, e
+            )))
+        },
     };
-    let section = match bpx.find_section_by_index(section_id)
-    {
+    let section = match bpx.find_section_by_index(section_id) {
         Some(section) => section,
-        None => return Err(Error::new(ErrorKind::InvalidInput, format!("Could not find section with index {}", section_id)))
+        None => return Err(Error::SectionNotFound(section_id))
     };
-    let mut data = bpx.open_section(&section)?;
-    let object = bpx::sd::load_structured_data(&mut data)?;
+    let mut data = bpx.open_section(section)?;
+    let object = bpx::sd::Object::read(&mut data)?;
 
     return super::printsd::print_object(1, &object);
 }
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut bpx = bpx::bpx::Decoder::new(Path::new(file))?;
+    let mut file = File::open(file)?;
+    let mut bpx = Decoder::new(&mut file)?;
 
     print_main_header(&bpx);
-    if matches.is_present("metadata")
-    {
+    if matches.is_present("metadata") {
         print_metadata(&bpx, matches.is_present("hex"))?;
     }
-    if matches.is_present("sht")
-    {
+    if matches.is_present("sht") {
         print_sht(&bpx);
     }
-    if let Some(sidstr) = matches.value_of("section_id")
-    {
-        if matches.is_present("bpxsd")
-        {
+    if let Some(sidstr) = matches.value_of("section_id") {
+        if matches.is_present("bpxsd") {
             print_structured_data(&mut bpx, sidstr)?;
-        }
-        else
-        {
-            match matches.value_of("out_file")
-            {
-                None => print_section(&mut bpx, sidstr, None, matches.is_present("hex"), matches.is_present("force"))?,
-                Some(s) =>
-                {
+        } else {
+            match matches.value_of("out_file") {
+                None => print_section(
+                    &mut bpx,
+                    sidstr,
+                    None,
+                    matches.is_present("hex"),
+                    matches.is_present("force")
+                )?,
+                Some(s) => {
                     let mut fle = File::create(s)?;
-                    print_section(&mut bpx, sidstr, Some(&mut fle), matches.is_present("hex"), matches.is_present("force"))?;
+                    print_section(
+                        &mut bpx,
+                        sidstr,
+                        Some(&mut fle),
+                        matches.is_present("hex"),
+                        matches.is_present("force")
+                    )?;
                 }
-            }    
+            }
         }
     }
     return Ok(());
