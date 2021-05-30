@@ -129,7 +129,7 @@ fn print_section<TInterface: Interface>(
         Some(section) => section,
         None => return Err(Error::SectionNotFound(section_id))
     };
-    let mut data = bpx.open_section(section)?;
+    let data = bpx.open_section(section)?;
 
     if hex {
         let mut buf: [u8; 8192] = [0; 8192];

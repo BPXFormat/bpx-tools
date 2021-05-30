@@ -36,7 +36,7 @@ pub fn run(file: &Path) -> Result<()>
 {
     let mut file = File::open(file)?;
     let mut bpx = Decoder::new(&mut file)?;
-    let mut decoder = PackageDecoder::read(&mut bpx)?;
+    let decoder = PackageDecoder::read(&mut bpx)?;
     decoder.unpack(&mut bpx, Path::new("."))?;
     return Ok(());
 }
