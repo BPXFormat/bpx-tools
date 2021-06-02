@@ -29,10 +29,10 @@
 use std::{fs::File, io::Write, path::Path, string::String};
 
 use bpx::{decoder::Decoder, Interface};
+use bpx_tools_common::{Error, Result};
 use clap::ArgMatches;
 
-use super::{result::Result, type_ext_maps::get_type_ext_map};
-use crate::result::Error;
+use super::type_ext_maps::get_type_ext_map;
 
 fn print_main_header<TInterface: Interface>(bpx: &TInterface)
 {
@@ -121,8 +121,8 @@ fn print_section<TInterface: Interface>(
             return Err(Error::Parsing(format!(
                 "Could not parse section index {} ({})",
                 section_id_str, e
-            )))
-        },
+            )));
+        }
     };
     let section = match bpx.find_section_by_index(section_id) {
         Some(section) => section,
@@ -171,8 +171,8 @@ fn print_structured_data<TInterface: Interface>(bpx: &mut TInterface, section_id
             return Err(Error::Parsing(format!(
                 "Could not parse section index {} ({})",
                 section_id_str, e
-            )))
-        },
+            )));
+        }
     };
     let section = match bpx.find_section_by_index(section_id) {
         Some(section) => section,

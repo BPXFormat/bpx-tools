@@ -26,31 +26,24 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::string::String;
+use std::{fs::File, path::Path};
 
-pub enum Error
-{
-    Bpx(bpx::error::Error),
-    Io(std::io::Error),
-    Parsing(String),
-    SectionNotFound(u32),
-    BinaryOutput
-}
+use bpx::{bpxp::encoder::PackageBuilder, encoder::Encoder};
+use bpx_tools_common::Result;
+use clap::ArgMatches;
 
-impl From<std::io::Error> for Error
+pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    fn from(e: std::io::Error) -> Self
-    {
-        return Error::Io(e);
+    let mut file = File::create(file)?;
+    let mut bpx = Encoder::new(&mut file)?;
+    let encoder = PackageBuilder::new()
+        .with_variant(['B' as u8, 'D' as u8])
+        .build(&mut bpx)?;
+    let files: Vec<&str> = matches.values_of("files").unwrap().collect();
+
+    for v in files {
+        encoder.pack(&mut bpx, Path::new(v))?;
     }
+    bpx.save()?;
+    return Ok(());
 }
-
-impl From<bpx::error::Error> for Error
-{
-    fn from(e: bpx::error::Error) -> Self
-    {
-        return Error::Bpx(e);
-    }
-}
-
-pub type Result<T> = std::result::Result<T, Error>;

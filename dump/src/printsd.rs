@@ -29,8 +29,7 @@
 use std::string::String;
 
 use bpx::sd::{Array, DebugSymbols, Object, Value};
-
-use super::result::Result;
+use bpx_tools_common::Result;
 
 fn gen_layer_prefix(layer: usize) -> String
 {

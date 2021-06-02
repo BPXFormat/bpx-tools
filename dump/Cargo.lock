@@ -40,36 +40,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "bpx-dump"
+name = "bpxdbg"
 version = "0.1.0"
 dependencies = [
  "bpx",
- "bpx-tools-common",
- "clap",
-]
-
-[[package]]
-name = "bpx-pack"
-version = "0.1.0"
-dependencies = [
- "bpx",
- "bpx-tools-common",
- "clap",
-]
-
-[[package]]
-name = "bpx-tools-common"
-version = "0.1.0"
-dependencies = [
- "bpx",
-]
-
-[[package]]
-name = "bpx-unpack"
-version = "0.1.0"
-dependencies = [
- "bpx",
- "bpx-tools-common",
  "clap",
 ]
 

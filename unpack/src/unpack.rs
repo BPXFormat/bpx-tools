@@ -29,8 +29,7 @@
 use std::{fs::File, path::Path};
 
 use bpx::{bpxp::decoder::PackageDecoder, decoder::Decoder};
-
-use super::result::Result;
+use bpx_tools_common::Result;
 
 pub fn run(file: &Path) -> Result<()>
 {
