@@ -35,6 +35,38 @@ File size: 1632
 Number of sections: 2
 ====> End <====
 
+====> BPX TypeExt <====
+Architecture: Any
+Platform: Any
+Generator: BD
+====> End <====
+
+====> BPX Section Header Table <====
+Section #0:
+	Type: 255
+	Size (after compression): 15
+	Size: 15
+	Flags:  CheckWeak
+Section #1:
+	Type: 1
+	Size (after compression): 1529
+	Size: 1529
+	Flags:  CheckWeak
+====> End <====
+
+";
+
+const EXPECTED_OUTPUT_HEX: &'static str = "====> BPX Main Header <====
+Type: P
+Version: 1
+File size: 1632
+Number of sections: 2
+====> End <====
+
+====> BPX TypeExt <====
+04 04 42 44 00 00 00 00 00 00 00 00 00 00 00 00 
+====> End <====
+
 ====> BPX Section Header Table <====
 Section #0:
 	Type: 255
@@ -51,21 +83,41 @@ Section #1:
 ";
 
 #[test]
-fn dump_sht_1()
+fn dump_metadata_1()
 {
     let assert = Command::cargo_bin("bpx-dump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "-s"])
+        .args(&["-f", "tests/test.bpx", "-sm"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT).stderr("");
 }
 
 #[test]
-fn dump_sht_2()
+fn dump_metadata_2()
 {
     let assert = Command::cargo_bin("bpx-dump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "--sht"])
+        .args(&["-f", "tests/test.bpx", "--sht", "--metadata"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+}
+
+#[test]
+fn dump_metadata_hex_1()
+{
+    let assert = Command::cargo_bin("bpx-dump")
+        .unwrap()
+        .args(&["-f", "tests/test.bpx", "-smx"])
+        .assert();
+    assert.success().stdout(EXPECTED_OUTPUT_HEX).stderr("");
+}
+
+#[test]
+fn dump_metadata_hex_2()
+{
+    let assert = Command::cargo_bin("bpx-dump")
+        .unwrap()
+        .args(&["-f", "tests/test.bpx", "--sht", "--metadata", "--hex"])
+        .assert();
+    assert.success().stdout(EXPECTED_OUTPUT_HEX).stderr("");
 }
