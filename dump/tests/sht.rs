@@ -53,7 +53,7 @@ Section #1:
 #[test]
 fn dump_sht_1()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-s"])
         .assert();
@@ -63,7 +63,7 @@ fn dump_sht_1()
 #[test]
 fn dump_sht_2()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--sht"])
         .assert();

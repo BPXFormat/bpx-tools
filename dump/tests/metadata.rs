@@ -85,7 +85,7 @@ Section #1:
 #[test]
 fn dump_metadata_1()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-sm"])
         .assert();
@@ -95,7 +95,7 @@ fn dump_metadata_1()
 #[test]
 fn dump_metadata_2()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--sht", "--metadata"])
         .assert();
@@ -105,7 +105,7 @@ fn dump_metadata_2()
 #[test]
 fn dump_metadata_hex_1()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-smx"])
         .assert();
@@ -115,7 +115,7 @@ fn dump_metadata_hex_1()
 #[test]
 fn dump_metadata_hex_2()
 {
-    let assert = Command::cargo_bin("bpx-dump")
+    let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--sht", "--metadata", "--hex"])
         .assert();
