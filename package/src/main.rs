@@ -32,21 +32,34 @@ use bpx_tools_common::error;
 use clap::clap_app;
 
 mod pack;
+mod unpack;
 
 fn main()
 {
-    let matches = clap_app!(bpxpack =>
+    let matches = clap_app!(bpxp =>
         (version: "1.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
-        (about: "Create a BPX type P (Package) with given data inside")
-        (@arg file: -f --file +required +takes_value "Path to the output BPX file")
-        (@arg files: +required ... "List of files to pack")
+        (about: "Manages BPX type P (Package) files")
+        (@arg file: -f --file +required +takes_value "Path to the output/input BPX file")
+        (@arg unpack: -u --unpack "Indicates to run the unpacker")
+        (@arg pack: -p --pack "Indicates to run the packer")
+        (@arg files: ... "List of files to package")
     )
     .get_matches();
     let file = matches.value_of("file").unwrap();
 
-    match pack::run(Path::new(file), &matches) {
-        Ok(()) => std::process::exit(0),
-        Err(e) => error(&e)
+    if matches.is_present("unpack") {
+        match pack::run(Path::new(file), &matches) {
+            Ok(()) => std::process::exit(0),
+            Err(e) => error(&e)
+        }
+    } else if matches.is_present("pack") {
+        match unpack::run(Path::new(file)) {
+            Ok(()) => std::process::exit(0),
+            Err(e) => error(&e)
+        }
+    } else {
+        eprintln!("Please specify an action");
+        std::process::exit(2);
     }
 }

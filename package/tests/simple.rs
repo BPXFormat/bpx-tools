@@ -26,26 +26,15 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::Path;
+use assert_cmd::Command;
 
-use bpx_tools_common::error;
-use clap::clap_app;
-
-mod unpack;
-
-fn main()
+#[test]
+fn pack_simple()
 {
-    let matches = clap_app!(bpxunpack =>
-        (version: "1.0")
-        (author: "BlockProject3D <https://github.com/BlockProject3D>")
-        (about: "Create a BPX type P (Package) with given data inside")
-        (@arg file: -f --file +required +takes_value "Path to the input BPX file")
-    )
-    .get_matches();
-    let file = matches.value_of("file").unwrap();
+    let assert = Command::cargo_bin("bpx-package")
+        .unwrap()
+        .args(&["-f", "tests/test.bpx"])
+        .assert();
+    //assert.success().stdout(EXPECTED_OUTPUT).stderr("");
 
-    match unpack::run(Path::new(file)) {
-        Ok(()) => std::process::exit(0),
-        Err(e) => error(&e)
-    }
 }
