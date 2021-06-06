@@ -28,7 +28,7 @@
 
 use std::path::Path;
 
-use bpx_tools_common::error;
+use common::error;
 use clap::clap_app;
 
 mod bpxinfo;

@@ -29,7 +29,7 @@
 use std::{fs::File, path::Path};
 
 use bpx::{bpxp::encoder::PackageBuilder, encoder::Encoder};
-use bpx_tools_common::Result;
+use common::Result;
 use clap::ArgMatches;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>

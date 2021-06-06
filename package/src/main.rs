@@ -28,7 +28,7 @@
 
 use std::path::Path;
 
-use bpx_tools_common::error;
+use common::error;
 use clap::clap_app;
 
 mod pack;
@@ -36,10 +36,13 @@ mod unpack;
 
 fn main()
 {
+    //The verbose option cannot be implemented yet due to the inflexibility of the BPXP format
+    //The BPXP format cannot yet deal with random file access: a single file cannot be accessed without unpacking the whole archive
     let matches = clap_app!(bpxp =>
         (version: "1.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
         (about: "Manages BPX type P (Package) files")
+        (@arg verbose: -v --verbose "Print debug information when packing content")
         (@arg file: -f --file +required +takes_value "Path to the output/input BPX file")
         (@arg unpack: -u --unpack "Indicates to run the unpacker")
         (@arg pack: -p --pack "Indicates to run the packer")

@@ -29,7 +29,7 @@
 use std::{fs::File, io::Write, path::Path, string::String};
 
 use bpx::{decoder::Decoder, Interface};
-use bpx_tools_common::{Error, Result};
+use common::{Error, Result};
 use clap::ArgMatches;
 
 use super::type_ext_maps::get_type_ext_map;

@@ -69,20 +69,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "bpx-tools-common"
-version = "0.1.0"
-dependencies = [
- "bpx",
-]
-
-[[package]]
 name = "bpxdump"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
  "bpx",
- "bpx-tools-common",
  "clap",
+ "common",
  "predicates",
 ]
 
@@ -92,8 +85,8 @@ version = "0.1.0"
 dependencies = [
  "assert_cmd",
  "bpx",
- "bpx-tools-common",
  "clap",
+ "common",
 ]
 
 [[package]]
@@ -138,6 +131,13 @@ dependencies = [
  "textwrap",
  "unicode-width",
  "vec_map",
+]
+
+[[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "bpx",
 ]
 
 [[package]]
