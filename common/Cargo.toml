@@ -8,4 +8,5 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bpx = "2.0.0"
+bpx = { git = "https://gitlab.com/bp3d/bpx/bpx-rs.git", branch = "develop" }
+#bpx = "3.0.0"

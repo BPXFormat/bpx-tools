@@ -28,14 +28,17 @@
 
 use std::{fs::File, path::Path};
 
-use bpx::{bpxp::decoder::PackageDecoder, decoder::Decoder};
+use bpx::decoder::Decoder;
+use bpx::variant::package::PackageDecoder;
+
 use common::Result;
+use bpx::variant::package::utils::unpack;
 
 pub fn run(file: &Path) -> Result<()>
 {
-    let mut file = File::open(file)?;
-    let mut bpx = Decoder::new(&mut file)?;
-    let decoder = PackageDecoder::read(&mut bpx)?;
-    decoder.unpack(&mut bpx, Path::new("."))?;
+    let mut bpx = Decoder::new(File::open(file)?)?;
+    let mut decoder = PackageDecoder::read(&mut bpx)?;
+
+    unpack(&mut decoder, Path::new("."))?;
     return Ok(());
 }

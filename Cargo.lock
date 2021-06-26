@@ -57,9 +57,8 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "bpx"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e93bf39814e3c89d43ff33540e136b279ecd6b8e7814b9f2ac8998cbf8ee2c6c"
+version = "3.0.0"
+source = "git+https://gitlab.com/bp3d/bpx/bpx-rs.git?branch=develop#53ce7edb50a4ec48b38d95394997beb89da61208"
 dependencies = [
  "byteorder",
  "libz-sys",

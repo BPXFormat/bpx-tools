@@ -31,7 +31,7 @@ use assert_cmd::Command;
 #[test]
 fn pack_simple()
 {
-    let assert = Command::cargo_bin("bpx-package")
+    let assert = Command::cargo_bin("bpxp")
         .unwrap()
         .args(&["-f", "tests/test.bpx"])
         .assert();

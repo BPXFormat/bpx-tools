@@ -28,21 +28,23 @@
 
 use std::{fs::File, path::Path};
 
-use bpx::{bpxp::encoder::PackageBuilder, encoder::Encoder};
-use common::Result;
+use bpx::{
+    encoder::Encoder,
+    variant::package::{utils::pack_file, PackageBuilder}
+};
 use clap::ArgMatches;
+use common::Result;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut file = File::create(file)?;
-    let mut bpx = Encoder::new(&mut file)?;
-    let encoder = PackageBuilder::new()
+    let mut bpx = Encoder::new(File::create(file)?)?;
+    let mut encoder = PackageBuilder::new()
         .with_variant(['B' as u8, 'D' as u8])
         .build(&mut bpx)?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {
-        encoder.pack(&mut bpx, Path::new(v))?;
+        pack_file(&mut encoder, Path::new(v))?;
     }
     bpx.save()?;
     return Ok(());

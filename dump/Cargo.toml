@@ -8,7 +8,8 @@ edition = "2018"
 
 [dependencies]
 clap = "2.27.0"
-bpx = "2.0.0"
+#bpx = "3.0.0"
+bpx = { git = "https://gitlab.com/bp3d/bpx/bpx-rs.git", branch = "develop" }
 common = { path = "../common" }
 
 [dev-dependencies]
