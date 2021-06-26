@@ -26,15 +26,23 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use assert_cmd::Command;
+use common::Result;
+use std::path::Path;
+use std::fs::File;
+use bpx::variant::package::PackageDecoder;
+use bpx::decoder::Decoder;
 
-#[test]
-fn pack_simple()
+pub fn run(file: &Path) -> Result<()>
 {
-    let assert = Command::cargo_bin("bpxp")
-        .unwrap()
-        .args(&["-f", "test.bpx", "-p", "LICENSE.txt"])
-        .assert();
-    //assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+    let mut bpx = Decoder::new(File::open(file)?)?;
+    let mut decoder = PackageDecoder::read(&mut bpx)?;
+    let table = decoder.read_object_table()?;
 
+    println!("Decoding object table:");
+    for v in table.get_objects() {
+        let name = decoder.get_object_name(v)?;
+        let size = v.size;
+        println!("Name = '{}', Size = {} byte(s)", name, size);
+    }
+    return Ok(());
 }

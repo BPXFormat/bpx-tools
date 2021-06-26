@@ -33,6 +33,7 @@ use clap::clap_app;
 
 mod pack;
 mod unpack;
+mod list;
 
 fn main()
 {
@@ -42,22 +43,28 @@ fn main()
         (version: "1.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
         (about: "Manages BPX type P (Package) files")
-        (@arg verbose: -v --verbose "Print debug information when packing content")
+        (@arg verbose: -v --verbose "Print debug information when packing or unpacking objects")
         (@arg file: -f --file +required +takes_value "Path to the output/input BPX file")
         (@arg unpack: -u --unpack "Indicates to run the unpacker")
         (@arg pack: -p --pack "Indicates to run the packer")
-        (@arg files: ... "List of files to package")
+        (@arg ls: -l --list "List all objects contained in that BPXP")
+        (@arg files: ... "List of files/objects to pack/unpack")
     )
     .get_matches();
     let file = matches.value_of("file").unwrap();
 
     if matches.is_present("unpack") {
-        match pack::run(Path::new(file), &matches) {
+        match unpack::run(Path::new(file)) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }
     } else if matches.is_present("pack") {
-        match unpack::run(Path::new(file)) {
+        match pack::run(Path::new(file), &matches) {
+            Ok(()) => std::process::exit(0),
+            Err(e) => error(&e)
+        }
+    } else if matches.is_present("ls") {
+        match list::run(Path::new(file)) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }

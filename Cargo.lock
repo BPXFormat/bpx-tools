@@ -58,7 +58,6 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 [[package]]
 name = "bpx"
 version = "3.0.0"
-source = "git+https://gitlab.com/bp3d/bpx/bpx-rs.git?branch=develop#53ce7edb50a4ec48b38d95394997beb89da61208"
 dependencies = [
  "byteorder",
  "libz-sys",
