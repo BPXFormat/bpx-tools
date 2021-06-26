@@ -44,6 +44,9 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {
+        if matches.is_present("verbose") {
+            println!("Packing {}...", v);
+        }
         pack_file(&mut encoder, Path::new(v))?;
     }
     bpx.save()?;

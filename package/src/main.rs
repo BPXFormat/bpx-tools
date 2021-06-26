@@ -28,12 +28,12 @@
 
 use std::path::Path;
 
-use common::error;
 use clap::clap_app;
+use common::error;
 
+mod list;
 mod pack;
 mod unpack;
-mod list;
 
 fn main()
 {
@@ -48,13 +48,13 @@ fn main()
         (@arg unpack: -u --unpack "Indicates to run the unpacker")
         (@arg pack: -p --pack "Indicates to run the packer")
         (@arg ls: -l --list "List all objects contained in that BPXP")
-        (@arg files: ... "List of files/objects to pack/unpack")
+        (@arg files: ... "List of files/objects to pack")
     )
     .get_matches();
     let file = matches.value_of("file").unwrap();
 
     if matches.is_present("unpack") {
-        match unpack::run(Path::new(file)) {
+        match unpack::run(Path::new(file), matches.is_present("verbose")) {
             Ok(()) => std::process::exit(0),
             Err(e) => error(&e)
         }

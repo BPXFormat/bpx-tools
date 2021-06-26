@@ -26,19 +26,46 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, path::Path};
+use std::{
+    fs::File,
+    path::{Path, PathBuf}
+};
 
-use bpx::decoder::Decoder;
-use bpx::variant::package::PackageDecoder;
-
+use bpx::{
+    decoder::Decoder,
+    variant::package::{utils::unpack_file, PackageDecoder}
+};
 use common::Result;
-use bpx::variant::package::utils::unpack;
 
-pub fn run(file: &Path) -> Result<()>
+fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<()>
+{
+    let mut unnamed_count = 0;
+    let table = package.read_object_table()?;
+    for v in table.get_objects() {
+        let mut path = String::from(package.get_object_name(v)?);
+        if path == "" {
+            unnamed_count += 1;
+            path = format!("unnamed_file_{}", unnamed_count);
+        }
+        if verbose {
+            println!("Unpacking object name {} with {} byte(s)...", path, v.size);
+        }
+        let mut dest = PathBuf::new();
+        dest.push(target);
+        dest.push(Path::new(&path));
+        if let Some(v) = dest.parent() {
+            std::fs::create_dir_all(v)?;
+        }
+        unpack_file(package, v, &dest)?;
+    }
+    return Ok(());
+}
+
+pub fn run(file: &Path, verbose: bool) -> Result<()>
 {
     let mut bpx = Decoder::new(File::open(file)?)?;
     let mut decoder = PackageDecoder::read(&mut bpx)?;
 
-    unpack(&mut decoder, Path::new("."))?;
+    custom_unpack(&mut decoder, Path::new("."), verbose)?;
     return Ok(());
 }
