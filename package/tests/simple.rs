@@ -26,15 +26,47 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use serial_test::serial;
 use assert_cmd::Command;
+use file_diff::diff;
+use std::fs::remove_file;
+
+const EXPECTED_OUTPUT: &'static str = "Decoding object table:
+Name = 'LICENSE.txt', Size = 1518 byte(s)
+";
 
 #[test]
-fn pack_simple()
+#[serial]
+fn a_pack_simple()
 {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
-        .args(&["-f", "test.bpx", "-p", "LICENSE.txt"])
+        .args(&["-f", "test.bpx", "-p", "../LICENSE.txt"])
         .assert();
-    //assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+    assert.success().stdout("").stderr("");
+}
 
+#[test]
+#[serial]
+fn b_list_simple()
+{
+    let assert = Command::cargo_bin("bpxp")
+        .unwrap()
+        .args(&["-f", "test.bpx", "-l"])
+        .assert();
+    assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+}
+
+#[test]
+#[serial]
+fn c_unpack_simple()
+{
+    let assert = Command::cargo_bin("bpxp")
+        .unwrap()
+        .args(&["-f", "test.bpx", "-u"])
+        .assert();
+    assert.success().stdout("").stderr("");
+    assert!(diff("LICENSE.txt", "../LICENSE.txt"));
+    remove_file("LICENSE.txt").unwrap();
+    remove_file("test.bpx").unwrap();
 }
