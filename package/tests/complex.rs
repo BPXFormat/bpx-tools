@@ -31,17 +31,13 @@ use assert_cmd::Command;
 use file_diff::diff;
 use std::fs::remove_file;
 
-const EXPECTED_OUTPUT: &'static str = "Decoding object table:
-Name = 'LICENSE.txt', Size = 1518 byte(s)
-";
-
 #[test]
 #[serial]
 fn pack_unpack()
 {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
-        .args(&["-f", "test.bpx", "-p", "../LICENSE.txt"])
+        .args(&["-f", "test.bpx", "-p", "../target/debug/bpxdump"])
         .assert();
     assert.success().stdout("").stderr("");
     let assert = Command::cargo_bin("bpxp")
@@ -49,24 +45,6 @@ fn pack_unpack()
         .args(&["-f", "test.bpx", "-u"])
         .assert();
     assert.success().stdout("").stderr("");
-    assert!(diff("LICENSE.txt", "../LICENSE.txt"));
-    remove_file("LICENSE.txt").unwrap();
-    remove_file("test.bpx").unwrap();
-}
-
-#[test]
-#[serial]
-fn pack_list()
-{
-    let assert = Command::cargo_bin("bpxp")
-        .unwrap()
-        .args(&["-f", "test.bpx", "-p", "../LICENSE.txt"])
-        .assert();
-    assert.success().stdout("").stderr("");
-    let assert = Command::cargo_bin("bpxp")
-        .unwrap()
-        .args(&["-f", "test.bpx", "-l"])
-        .assert();
-    assert.success().stdout(EXPECTED_OUTPUT).stderr("");
-    remove_file("test.bpx").unwrap();
+    assert!(diff("bpxdump", "../target/debug/bpxdump"));
+    remove_file("bpxdump").unwrap();
 }
