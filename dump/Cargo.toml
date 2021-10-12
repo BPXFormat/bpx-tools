@@ -8,8 +8,7 @@ edition = "2018"
 
 [dependencies]
 clap = "2.27.0"
-bpx = "3.0.0"
-#bpx = { path = "../../bpx-rs" }
+bpx = { version = "3.1.0", path = "../../bpx-rs" }
 common = { path = "../common" }
 
 [dev-dependencies]

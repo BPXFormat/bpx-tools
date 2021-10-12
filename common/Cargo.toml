@@ -8,5 +8,4 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#bpx = { path = "../../bpx-rs" }
-bpx = "3.0.0"
+bpx = { version = "3.1.0", path = "../../bpx-rs" }

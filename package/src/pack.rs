@@ -39,7 +39,7 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
     let mut bpx = Encoder::new(File::create(file)?)?;
     let mut encoder = PackageBuilder::new()
-        .with_variant(['B' as u8, 'D' as u8])
+        .with_type(['B' as u8, 'D' as u8])
         .build(&mut bpx)?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
