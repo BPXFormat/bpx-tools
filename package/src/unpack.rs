@@ -32,7 +32,6 @@ use std::{
 };
 
 use bpx::{
-    decoder::Decoder,
     variant::package::{utils::unpack_file, PackageDecoder}
 };
 use common::Result;
@@ -63,8 +62,7 @@ fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: boo
 
 pub fn run(file: &Path, verbose: bool) -> Result<()>
 {
-    let mut bpx = Decoder::new(File::open(file)?)?;
-    let mut decoder = PackageDecoder::read(&mut bpx)?;
+    let mut decoder = PackageDecoder::new(File::open(file)?)?;
 
     custom_unpack(&mut decoder, Path::new("."), verbose)?;
     return Ok(());

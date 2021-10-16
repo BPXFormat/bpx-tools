@@ -30,12 +30,10 @@ use common::Result;
 use std::path::Path;
 use std::fs::File;
 use bpx::variant::package::PackageDecoder;
-use bpx::decoder::Decoder;
 
 pub fn run(file: &Path) -> Result<()>
 {
-    let mut bpx = Decoder::new(File::open(file)?)?;
-    let mut decoder = PackageDecoder::read(&mut bpx)?;
+    let mut decoder = PackageDecoder::new(File::open(file)?)?;
     let table = decoder.read_object_table()?;
 
     println!("Decoding object table:");

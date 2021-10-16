@@ -29,7 +29,6 @@
 use std::{fs::File, path::Path};
 
 use bpx::{
-    encoder::Encoder,
     variant::package::{utils::pack_file, PackageBuilder}
 };
 use clap::ArgMatches;
@@ -37,10 +36,9 @@ use common::Result;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut bpx = Encoder::new(File::create(file)?)?;
     let mut encoder = PackageBuilder::new()
         .with_type(['B' as u8, 'D' as u8])
-        .build(&mut bpx)?;
+        .build(File::create(file)?)?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {
@@ -49,6 +47,6 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
         }
         pack_file(&mut encoder, Path::new(v))?;
     }
-    bpx.save()?;
+    encoder.save()?;
     return Ok(());
 }
