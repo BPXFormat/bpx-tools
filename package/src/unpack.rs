@@ -34,13 +34,14 @@ use std::{
 use bpx::{
     variant::package::{utils::unpack_file, PackageDecoder}
 };
+use bpx::variant::NamedTable;
 use common::Result;
 
 fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<()>
 {
     let mut unnamed_count = 0;
     let table = package.read_object_table()?;
-    for v in table.get_objects() {
+    for v in table.get_all() {
         let mut path = String::from(package.get_object_name(v)?);
         if path == "" {
             unnamed_count += 1;

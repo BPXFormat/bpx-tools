@@ -26,10 +26,11 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::io::Write;
 use std::string::String;
 
 use bpx::sd::{Array, DebugSymbols, Object, Value};
-use common::Result;
+use crate::error::Result;
 
 fn gen_layer_prefix(layer: usize) -> String
 {
@@ -41,45 +42,45 @@ fn gen_layer_prefix(layer: usize) -> String
     return res;
 }
 
-fn print_value(layer: usize, value: &Value) -> Result<()>
+fn print_value<TWrite: Write>(layer: usize, value: &Value, out: &mut TWrite) -> Result<()>
 {
     match value {
-        Value::Null => println!("NULL"),
-        Value::Uint8(v) => println!("(Uint8) {}", v),
-        Value::Uint16(v) => println!("(Uint16) {}", v),
-        Value::Uint32(v) => println!("(Uint32) {}", v),
-        Value::Uint64(v) => println!("(Uint64) {}", v),
-        Value::Int8(v) => println!("(Int8) {}", v),
-        Value::Int16(v) => println!("(Int16) {}", v),
-        Value::Int32(v) => println!("(Int32) {}", v),
-        Value::Int64(v) => println!("(Int64) {}", v),
-        Value::Float(v) => println!("(Float) {}", v),
-        Value::Double(v) => println!("(Double) {}", v),
-        Value::String(v) => println!("{}", v),
+        Value::Null => writeln!(out, "NULL")?,
+        Value::Uint8(v) => writeln!(out, "(Uint8) {}", v)?,
+        Value::Uint16(v) => writeln!(out, "(Uint16) {}", v)?,
+        Value::Uint32(v) => writeln!(out, "(Uint32) {}", v)?,
+        Value::Uint64(v) => writeln!(out, "(Uint64) {}", v)?,
+        Value::Int8(v) => writeln!(out, "(Int8) {}", v)?,
+        Value::Int16(v) => writeln!(out, "(Int16) {}", v)?,
+        Value::Int32(v) => writeln!(out, "(Int32) {}", v)?,
+        Value::Int64(v) => writeln!(out, "(Int64) {}", v)?,
+        Value::Float(v) => writeln!(out, "(Float) {}", v)?,
+        Value::Double(v) => writeln!(out, "(Double) {}", v)?,
+        Value::String(v) => writeln!(out, "{}", v)?,
         Value::Bool(v) => {
             if *v {
-                println!("true");
+                writeln!(out, "true")?;
             } else {
-                println!("false");
+                writeln!(out, "false")?;
             }
         },
-        Value::Object(v) => print_object(layer + 1, v)?,
-        Value::Array(v) => print_array(layer + 1, v)?
+        Value::Object(v) => print_object(layer + 1, v, out)?,
+        Value::Array(v) => print_array(layer + 1, v, out)?
     }
     return Ok(());
 }
 
-fn print_array(layer: usize, array: &Array) -> Result<()>
+fn print_array<TWrite: Write>(layer: usize, array: &Array, out: &mut TWrite) -> Result<()>
 {
-    println!("[");
+    writeln!(out, "[")?;
     for i in 0..array.len() {
-        print_value(layer, &array[i])?;
+        print_value(layer, &array[i], out)?;
     }
-    println!("{}]", gen_layer_prefix(layer - 1));
+    writeln!(out, "{}]", gen_layer_prefix(layer - 1))?;
     return Ok(());
 }
 
-pub fn print_object(layer: usize, object: &Object) -> Result<()>
+pub fn print_object<TWrite: Write>(layer: usize, object: &Object, out: &mut TWrite) -> Result<()>
 {
     let prefix = gen_layer_prefix(layer);
     let debugger = match DebugSymbols::read(object) {
@@ -90,17 +91,16 @@ pub fn print_object(layer: usize, object: &Object) -> Result<()>
         Ok(v) => Some(v)
     };
 
-    println!("{{");
+    writeln!(out, "{{")?;
     for key in object.get_keys() {
-        let keyname = match &debugger {
-            None => format!("{}", key),
+        match &debugger {
+            None => write!(out, "{} {}", prefix, key)?,
             Some(d) => match d.lookup(*key) {
-                None => format!("{}", key),
-                Some(name) => String::from(name)
+                None => write!(out, "{} {}", prefix, key)?,
+                Some(name) => write!(out, "{} {}", prefix, name)?
             }
         };
-        print!("{} {}: ", prefix, keyname);
-        print_value(layer, &object[*key])?;
+        print_value(layer, &object[*key], out)?;
     }
     println!("{}}}", gen_layer_prefix(layer - 1));
     return Ok(());

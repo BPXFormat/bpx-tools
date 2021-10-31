@@ -26,22 +26,43 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use common::Result;
-use std::path::Path;
-use std::fs::File;
-use bpx::variant::NamedTable;
-use bpx::variant::package::PackageDecoder;
+use std::fmt::{Display, Formatter};
+use bpx::macros::impl_err_conversion;
 
-pub fn run(file: &Path) -> Result<()>
+pub enum Error
 {
-    let mut decoder = PackageDecoder::new(File::open(file)?)?;
-    let table = decoder.read_object_table()?;
-
-    println!("Decoding object table:");
-    for v in table.get_all() {
-        let name = decoder.get_object_name(v)?;
-        let size = v.size;
-        println!("Name = '{}', Size = {} byte(s)", name, size);
-    }
-    return Ok(());
+    Bpx(bpx::error::ReadError),
+    Io(std::io::Error),
+    Sd(bpx::sd::error::ReadError),
+    Section(bpx::section::Error),
+    Parsing(String),
+    SectionNotFound(u32),
+    BinaryOutput
 }
+
+impl_err_conversion!(
+    Error {
+        bpx::error::ReadError => Bpx,
+        std::io::Error => Io,
+        bpx::sd::error::ReadError => Sd,
+        bpx::section::Error => Section
+    }
+);
+
+impl Display for Error
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        match self {
+            Error::Bpx(e) => f.write_fmt(format_args!("BPX error: {}", e)),
+            Error::Io(e) => f.write_fmt(format_args!("IO error: {}", e)),
+            Error::Sd(e) => f.write_fmt(format_args!("BPXSD error: {}", e)),
+            Error::Section(e) => f.write_fmt(format_args!("Section error: {}", e)),
+            Error::Parsing(s) => f.write_fmt(format_args!("Could not parse value ({})", s)),
+            Error::SectionNotFound(id) => f.write_fmt(format_args!("Could not find section with index {}", id)),
+            Error::BinaryOutput => f.write_str("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue")
+        }
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

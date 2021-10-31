@@ -28,22 +28,42 @@
 
 use std::string::String;
 
-pub fn error(err: &Error)
+/*pub fn error(err: &Error)
 {
     match err
     {
-        Error::Bpx(e) => eprintln!("BPX error: {}", e),
+        Error::BpxRead(e) => eprintln!("BPX error: {}", e),
         Error::Io(e) => eprintln!("IO error: {}", e),
         Error::Parsing(e) => eprintln!("Parsing error: {}", e),
         Error::SectionNotFound(v) => eprintln!("Could not find section with index {}", v),
         Error::BinaryOutput => eprintln!("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue")
     };
     std::process::exit(1);
+}*/
+
+pub fn error(err: &Error)
+{
+    match err
+    {
+        //Error::BpxRead(e) => eprintln!("BPX error: {}", e),
+        Error::Io(e) => eprintln!("IO error: {}", e),
+        Error::Parsing(e) => eprintln!("Parsing error: {}", e),
+        Error::SectionNotFound(v) => eprintln!("Could not find section with index {}", v),
+        Error::BinaryOutput => eprintln!("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue"),
+        _ => eprintln!("Unknown")
+    };
+    std::process::exit(1);
 }
 
 pub enum Error
 {
-    Bpx(bpx::error::Error),
+    BpxRead(bpx::error::ReadError),
+    BpxWrite(bpx::error::WriteError),
+    BpxpRead(bpx::variant::package::error::ReadError),
+    BpxpWrite(bpx::variant::package::error::WriteError),
+    Strings(bpx::strings::ReadError),
+    Section(bpx::section::Error),
+    SdRead(bpx::sd::error::ReadError),
     Io(std::io::Error),
     Parsing(String),
     SectionNotFound(u32),
@@ -58,11 +78,59 @@ impl From<std::io::Error> for Error
     }
 }
 
-impl From<bpx::error::Error> for Error
+impl From<bpx::error::ReadError> for Error
 {
-    fn from(e: bpx::error::Error) -> Self
+    fn from(e: bpx::error::ReadError) -> Self
     {
-        return Error::Bpx(e);
+        return Error::BpxRead(e);
+    }
+}
+
+impl From<bpx::error::WriteError> for Error
+{
+    fn from(e: bpx::error::WriteError) -> Self
+    {
+        return Error::BpxWrite(e);
+    }
+}
+
+impl From<bpx::variant::package::error::ReadError> for Error
+{
+    fn from(e: bpx::variant::package::error::ReadError) -> Self
+    {
+        return Error::BpxpRead(e);
+    }
+}
+
+impl From<bpx::variant::package::error::WriteError> for Error
+{
+    fn from(e: bpx::variant::package::error::WriteError) -> Self
+    {
+        return Error::BpxpWrite(e);
+    }
+}
+
+impl From<bpx::strings::ReadError> for Error
+{
+    fn from(e: bpx::strings::ReadError) -> Self
+    {
+        return Error::Strings(e);
+    }
+}
+
+impl From<bpx::section::Error> for Error
+{
+    fn from(e: bpx::section::Error) -> Self
+    {
+        return Error::Section(e);
+    }
+}
+
+impl From<bpx::sd::error::ReadError> for Error
+{
+    fn from(e: bpx::sd::error::ReadError) -> Self
+    {
+        return Error::SdRead(e);
     }
 }
 

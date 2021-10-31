@@ -28,12 +28,12 @@
 
 use std::path::Path;
 
-use common::error;
 use clap::clap_app;
 
 mod bpxinfo;
 mod printsd;
 mod type_ext_maps;
+mod error;
 
 fn main()
 {
@@ -55,6 +55,9 @@ fn main()
 
     match bpxinfo::run(Path::new(file), &matches) {
         Ok(()) => std::process::exit(0),
-        Err(e) => error(&e)
+        Err(e) => {
+            eprintln!("{}", e);
+            std::process::exit(1)
+        }
     }
 }
