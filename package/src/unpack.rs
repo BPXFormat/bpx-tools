@@ -35,9 +35,9 @@ use bpx::variant::{
     package::{utils::unpack_file, PackageDecoder},
     NamedTable
 };
-use common::Result;
+use crate::error::UnpackError;
 
-fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<()>
+fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
     let table = package.read_object_table()?;
@@ -61,7 +61,7 @@ fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: boo
     return Ok(());
 }
 
-pub fn run(file: &Path, verbose: bool) -> Result<()>
+pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut decoder = PackageDecoder::new(File::open(file)?)?;
 

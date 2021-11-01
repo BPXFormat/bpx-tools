@@ -29,9 +29,9 @@
 use std::{fs::File, path::Path};
 
 use bpx::variant::{package::PackageDecoder, NamedTable};
-use common::Result;
+use crate::error::UnpackError;
 
-pub fn run(file: &Path) -> Result<()>
+pub fn run(file: &Path) -> Result<(), UnpackError>
 {
     let mut decoder = PackageDecoder::new(File::open(file)?)?;
     let table = decoder.read_object_table()?;

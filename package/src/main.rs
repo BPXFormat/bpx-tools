@@ -29,8 +29,8 @@
 use std::path::Path;
 
 use clap::clap_app;
-use common::error;
 
+mod error;
 mod list;
 mod pack;
 mod unpack;
@@ -56,17 +56,26 @@ fn main()
     if matches.is_present("unpack") {
         match unpack::run(Path::new(file), matches.is_present("verbose")) {
             Ok(()) => std::process::exit(0),
-            Err(e) => error(&e)
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
     } else if matches.is_present("pack") {
         match pack::run(Path::new(file), &matches) {
             Ok(()) => std::process::exit(0),
-            Err(e) => error(&e)
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
     } else if matches.is_present("ls") {
         match list::run(Path::new(file)) {
             Ok(()) => std::process::exit(0),
-            Err(e) => error(&e)
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
     } else {
         eprintln!("Please specify an action");

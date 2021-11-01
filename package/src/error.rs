@@ -26,25 +26,59 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, path::Path};
+use std::fmt::{Display, Formatter};
+use bpx::macros::impl_err_conversion;
 
-use bpx::variant::package::{utils::pack_file, PackageBuilder};
-use clap::ArgMatches;
-use crate::error::PackError;
-
-pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
+pub enum UnpackError
 {
-    let mut encoder = PackageBuilder::new()
-        .with_type(['B' as u8, 'D' as u8])
-        .build(File::create(file)?)?;
-    let files: Vec<&str> = matches.values_of("files").unwrap().collect();
+    Bpxp(bpx::variant::package::error::ReadError),
+    Io(std::io::Error),
+    Strings(bpx::strings::ReadError)
+}
 
-    for v in files {
-        if matches.is_present("verbose") {
-            println!("Packing {}...", v);
-        }
-        pack_file(&mut encoder, Path::new(v))?;
+impl_err_conversion!(
+    UnpackError {
+        bpx::variant::package::error::ReadError => Bpxp,
+        std::io::Error => Io,
+        bpx::strings::ReadError => Strings
     }
-    encoder.save()?;
-    return Ok(());
+);
+
+pub enum PackError
+{
+    Bpxp(bpx::variant::package::error::WriteError),
+    Bpx(bpx::error::WriteError),
+    Io(std::io::Error)
+}
+
+impl_err_conversion!(
+    PackError {
+        bpx::variant::package::error::WriteError => Bpxp,
+        bpx::error::WriteError => Bpx,
+        std::io::Error => Io
+    }
+);
+
+impl Display for PackError
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        match self {
+            PackError::Bpxp(e) => f.write_fmt(format_args!("BPXP error: {}", e)),
+            PackError::Bpx(e) => f.write_fmt(format_args!("BPX error: {}", e)),
+            PackError::Io(e) => f.write_fmt(format_args!("IO error: {}", e))
+        }
+    }
+}
+
+impl Display for UnpackError
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        match self {
+            UnpackError::Bpxp(e) => f.write_fmt(format_args!("BPXP error: {}", e)),
+            UnpackError::Io(e) => f.write_fmt(format_args!("IO error: {}", e)),
+            UnpackError::Strings(e) => f.write_fmt(format_args!("Strings error: {}", e))
+        }
+    }
 }
