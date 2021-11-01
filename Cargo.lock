@@ -75,7 +75,6 @@ dependencies = [
  "assert_cmd",
  "bpx",
  "clap",
- "common",
  "predicates",
 ]
 
@@ -86,7 +85,6 @@ dependencies = [
  "assert_cmd",
  "bpx",
  "clap",
- "common",
  "file_diff",
  "serial_test",
 ]
@@ -133,13 +131,6 @@ dependencies = [
  "textwrap",
  "unicode-width",
  "vec_map",
-]
-
-[[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "bpx",
 ]
 
 [[package]]
