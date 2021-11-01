@@ -26,10 +26,10 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::io::Write;
-use std::string::String;
+use std::{io::Write, string::String};
 
 use bpx::sd::{Array, DebugSymbols, Object, Value};
+
 use crate::error::Result;
 
 fn gen_layer_prefix(layer: usize) -> String

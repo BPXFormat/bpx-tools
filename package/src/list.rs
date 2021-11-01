@@ -26,11 +26,10 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::{fs::File, path::Path};
+
+use bpx::variant::{package::PackageDecoder, NamedTable};
 use common::Result;
-use std::path::Path;
-use std::fs::File;
-use bpx::variant::NamedTable;
-use bpx::variant::package::PackageDecoder;
 
 pub fn run(file: &Path) -> Result<()>
 {

@@ -26,16 +26,17 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, io::Write, path::Path, string::String};
-use std::rc::Rc;
+use std::{fs::File, io::Write, path::Path, rc::Rc, string::String};
 
-use bpx::{decoder::Decoder, Interface};
-use bpx::decoder::IoBackend;
-use bpx::section::AutoSection;
-use crate::error::{Error, Result};
+use bpx::{
+    decoder::{Decoder, IoBackend},
+    section::AutoSection,
+    Interface
+};
 use clap::ArgMatches;
 
 use super::type_ext_maps::get_type_ext_map;
+use crate::error::{Error, Result};
 
 fn print_main_header<TInterface: Interface>(bpx: &TInterface)
 {
@@ -158,7 +159,10 @@ struct PrintOptions<'a, TWrite: Write>
     format: PrintFormat
 }
 
-fn open_section_print<TBackend: IoBackend, TWrite: Write>(bpx: &mut Decoder<TBackend>, mut opts: PrintOptions<TWrite>) -> Result<()>
+fn open_section_print<TBackend: IoBackend, TWrite: Write>(
+    bpx: &mut Decoder<TBackend>,
+    mut opts: PrintOptions<TWrite>
+) -> Result<()>
 {
     let section_id: u32 = match opts.section_id_str.parse() {
         Ok(id) => id,
@@ -208,14 +212,24 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
         }
         match matches.value_of("out_file") {
             None => {
-                open_section_print(&mut bpx, PrintOptions {
-                    format, section_id_str, output: std::io::stdout()
-                })?;
+                open_section_print(
+                    &mut bpx,
+                    PrintOptions {
+                        format,
+                        section_id_str,
+                        output: std::io::stdout()
+                    }
+                )?;
             },
             Some(s) => {
-                open_section_print(&mut bpx, PrintOptions {
-                    format, section_id_str, output: File::create(s)?
-                })?;
+                open_section_print(
+                    &mut bpx,
+                    PrintOptions {
+                        format,
+                        section_id_str,
+                        output: File::create(s)?
+                    }
+                )?;
             }
         }
     }

@@ -28,9 +28,7 @@
 
 use std::{fs::File, path::Path};
 
-use bpx::{
-    variant::package::{utils::pack_file, PackageBuilder}
-};
+use bpx::variant::package::{utils::pack_file, PackageBuilder};
 use clap::ArgMatches;
 use common::Result;
 

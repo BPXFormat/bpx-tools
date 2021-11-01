@@ -26,10 +26,11 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use serial_test::serial;
+use std::fs::remove_file;
+
 use assert_cmd::Command;
 use file_diff::diff;
-use std::fs::remove_file;
+use serial_test::serial;
 
 const EXPECTED_OUTPUT: &'static str = "Decoding object table:
 Name = 'LICENSE.txt', Size = 1518 byte(s)

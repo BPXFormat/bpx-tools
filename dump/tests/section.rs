@@ -78,7 +78,10 @@ fn dump_section_raw_1()
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-d", "0"])
         .assert();
-    assert.failure().stderr(EXPECTED_ERROR_RAW).stdout(EXPECTED_OUTPUT_RAW);
+    assert
+        .failure()
+        .stderr(EXPECTED_ERROR_RAW)
+        .stdout(EXPECTED_OUTPUT_RAW);
 }
 
 #[test]
@@ -88,5 +91,8 @@ fn dump_section_raw_2()
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--dump", "0"])
         .assert();
-    assert.failure().stderr(EXPECTED_ERROR_RAW).stdout(EXPECTED_OUTPUT_RAW);
+    assert
+        .failure()
+        .stderr(EXPECTED_ERROR_RAW)
+        .stdout(EXPECTED_OUTPUT_RAW);
 }

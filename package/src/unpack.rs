@@ -31,10 +31,10 @@ use std::{
     path::{Path, PathBuf}
 };
 
-use bpx::{
-    variant::package::{utils::unpack_file, PackageDecoder}
+use bpx::variant::{
+    package::{utils::unpack_file, PackageDecoder},
+    NamedTable
 };
-use bpx::variant::NamedTable;
 use common::Result;
 
 fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<()>

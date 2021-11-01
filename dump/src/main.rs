@@ -31,9 +31,9 @@ use std::path::Path;
 use clap::clap_app;
 
 mod bpxinfo;
+mod error;
 mod printsd;
 mod type_ext_maps;
-mod error;
 
 fn main()
 {
