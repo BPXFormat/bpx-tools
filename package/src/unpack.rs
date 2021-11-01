@@ -30,6 +30,8 @@ use std::{
     fs::File,
     path::{Path, PathBuf}
 };
+use std::io::BufReader;
+use bpx::decoder::IoBackend;
 
 use bpx::variant::{
     package::{utils::unpack_file, PackageDecoder},
@@ -37,7 +39,7 @@ use bpx::variant::{
 };
 use crate::error::UnpackError;
 
-fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: bool) -> Result<(), UnpackError>
+fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, target: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
     let table = package.read_object_table()?;
@@ -63,7 +65,7 @@ fn custom_unpack(package: &mut PackageDecoder<File>, target: &Path, verbose: boo
 
 pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
 {
-    let mut decoder = PackageDecoder::new(File::open(file)?)?;
+    let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
 
     custom_unpack(&mut decoder, Path::new("."), verbose)?;
     return Ok(());

@@ -27,6 +27,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{fs::File, io::Write, path::Path, rc::Rc, string::String};
+use std::io::BufReader;
 
 use bpx::{
     decoder::{Decoder, IoBackend},
@@ -187,8 +188,7 @@ fn open_section_print<TBackend: IoBackend, TWrite: Write>(
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut file = File::open(file)?;
-    let mut bpx = Decoder::new(&mut file)?;
+    let mut bpx = Decoder::new(BufReader::new(File::open(file)?))?;
 
     print_main_header(&bpx);
     if matches.is_present("metadata") {

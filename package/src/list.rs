@@ -27,13 +27,14 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{fs::File, path::Path};
+use std::io::BufReader;
 
 use bpx::variant::{package::PackageDecoder, NamedTable};
 use crate::error::UnpackError;
 
 pub fn run(file: &Path) -> Result<(), UnpackError>
 {
-    let mut decoder = PackageDecoder::new(File::open(file)?)?;
+    let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
     let table = decoder.read_object_table()?;
 
     println!("Decoding object table:");

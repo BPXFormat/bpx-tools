@@ -27,6 +27,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{fs::File, path::Path};
+use std::io::BufWriter;
 
 use bpx::variant::package::{utils::pack_file, PackageBuilder};
 use clap::ArgMatches;
@@ -36,7 +37,7 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
 {
     let mut encoder = PackageBuilder::new()
         .with_type(['B' as u8, 'D' as u8])
-        .build(File::create(file)?)?;
+        .build(BufWriter::new(File::create(file)?))?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {
