@@ -30,6 +30,7 @@ use std::{
     fs::File,
     path::{Path, PathBuf}
 };
+use std::borrow::Cow;
 use std::io::BufReader;
 use bpx::decoder::IoBackend;
 
@@ -38,25 +39,20 @@ use bpx::variant::{
 };
 use crate::error::UnpackError;
 
-//This is needed due to a type inference bug: if is_empty is called rust cannot infer the type of path so
-// we must disable this warning.
-#[allow(clippy::comparison_to_empty)]
 fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, target: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
     let (items, mut names) = package.read_object_table()?;
     for v in &items {
-        let mut path = names.load(v)?.into();
-        if path == "" {
+        let mut path: Cow<str> = names.load(v)?.into();
+        if path.is_empty() {
             unnamed_count += 1;
-            path = format!("unnamed_file_{}", unnamed_count);
+            path = format!("unnamed_file_{}", unnamed_count).into();
         }
         if verbose {
             println!("Unpacking object name {} with {} byte(s)...", path, v.size);
         }
-        let mut dest = PathBuf::new();
-        dest.push(target);
-        dest.push(Path::new(&path));
+        let dest: PathBuf = [target, Path::new(path.as_ref())].iter().collect();
         if let Some(v) = dest.parent() {
             std::fs::create_dir_all(v)?;
         }
