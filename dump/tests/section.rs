@@ -28,7 +28,7 @@
 
 use assert_cmd::Command;
 
-const EXPECTED_OUTPUT_HEX: &'static str = "====> BPX Main Header <====
+const EXPECTED_OUTPUT_HEX: &str = "====> BPX Main Header <====
 Type: P
 Version: 1
 File size: 1632
@@ -38,7 +38,7 @@ Number of sections: 2
 4C 49 43 45 4E 53 45 5F 4C 46 2E 74 78 74 00 
 ";
 
-const EXPECTED_OUTPUT_RAW: &'static str = "====> BPX Main Header <====
+const EXPECTED_OUTPUT_RAW: &str = "====> BPX Main Header <====
 Type: P
 Version: 1
 File size: 1632
@@ -47,7 +47,7 @@ Number of sections: 2
 
 ";
 
-const EXPECTED_ERROR_RAW: &'static str =
+const EXPECTED_ERROR_RAW: &str =
     "Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue
 ";
 

@@ -39,7 +39,7 @@ fn gen_layer_prefix(layer: usize) -> String
     for _ in 0..layer {
         res.push('\t');
     }
-    return res;
+    res
 }
 
 fn print_value<TWrite: Write>(layer: usize, value: &Value, out: &mut TWrite) -> Result<()>
@@ -67,7 +67,7 @@ fn print_value<TWrite: Write>(layer: usize, value: &Value, out: &mut TWrite) -> 
         Value::Object(v) => print_object(layer + 1, v, out)?,
         Value::Array(v) => print_array(layer + 1, v, out)?
     }
-    return Ok(());
+    Ok(())
 }
 
 fn print_array<TWrite: Write>(layer: usize, array: &Array, out: &mut TWrite) -> Result<()>
@@ -77,7 +77,7 @@ fn print_array<TWrite: Write>(layer: usize, array: &Array, out: &mut TWrite) -> 
         print_value(layer, &array[i], out)?;
     }
     writeln!(out, "{}]", gen_layer_prefix(layer - 1))?;
-    return Ok(());
+    Ok(())
 }
 
 pub fn print_object<TWrite: Write>(layer: usize, object: &Object, out: &mut TWrite) -> Result<()>
@@ -103,5 +103,5 @@ pub fn print_object<TWrite: Write>(layer: usize, object: &Object, out: &mut TWri
         print_value(layer, &object[*key], out)?;
     }
     println!("{}}}", gen_layer_prefix(layer - 1));
-    return Ok(());
+    Ok(())
 }

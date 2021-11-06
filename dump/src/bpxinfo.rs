@@ -89,7 +89,7 @@ fn hex_print<TWrite: Write>(block: &[u8], output: &mut TWrite) -> Result<()>
         }
         write!(output, "{:02X} ", byte)?;
     }
-    return Ok(());
+    Ok(())
 }
 
 fn print_metadata<TInterface: Interface>(bpx: &TInterface, hex: bool) -> Result<()>
@@ -109,7 +109,7 @@ fn print_metadata<TInterface: Interface>(bpx: &TInterface, hex: bool) -> Result<
     }
     println!("====> End <====");
     println!();
-    return Ok(());
+    Ok(())
 }
 
 fn print_section_hex<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite) -> Result<()>
@@ -122,7 +122,7 @@ fn print_section_hex<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite)
         res = rin.read(&mut buf)?;
     }
     writeln!(out)?;
-    return Ok(());
+    Ok(())
 }
 
 fn print_section_sd<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite) -> Result<()>
@@ -130,7 +130,7 @@ fn print_section_sd<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite) 
     let mut rin = section.open()?;
     let object = bpx::sd::Object::read(rin.as_mut())?;
     super::printsd::print_object(1, &object, out)?;
-    return Ok(());
+    Ok(())
 }
 
 fn print_section_raw<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite) -> Result<()>
@@ -142,7 +142,7 @@ fn print_section_raw<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite)
         out.write_all(&buf[0..res])?;
         res = rin.read(&mut buf)?;
     }
-    return Ok(());
+    Ok(())
 }
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -179,11 +179,11 @@ fn open_section_print<TBackend: IoBackend, TWrite: Write>(
         None => return Err(Error::SectionNotFound(section_id))
     };
     let section = bpx.load_section(section)?;
-    return match opts.format {
+    match opts.format {
         PrintFormat::Hex => print_section_hex(section, &mut opts.output),
         PrintFormat::Sd => print_section_sd(section, &mut opts.output),
         PrintFormat::Raw => print_section_raw(section, &mut opts.output)
-    };
+    }
 }
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
@@ -233,5 +233,5 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
             }
         }
     }
-    return Ok(());
+    Ok(())
 }

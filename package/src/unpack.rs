@@ -38,6 +38,9 @@ use bpx::variant::{
 };
 use crate::error::UnpackError;
 
+//This is needed due to a type inference bug: if is_empty is called rust cannot infer the type of path so
+// we must disable this warning.
+#[allow(clippy::comparison_to_empty)]
 fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, target: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;

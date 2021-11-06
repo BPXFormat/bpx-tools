@@ -28,7 +28,7 @@
 
 use assert_cmd::Command;
 
-const EXPECTED_OUTPUT: &'static str = "====> BPX Main Header <====
+const EXPECTED_OUTPUT: &str = "====> BPX Main Header <====
 Type: P
 Version: 1
 File size: 1632

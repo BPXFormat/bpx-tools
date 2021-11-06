@@ -32,7 +32,7 @@ use assert_cmd::Command;
 use file_diff::diff;
 use serial_test::serial;
 
-const EXPECTED_OUTPUT: &'static str = "Decoding object table:
+const EXPECTED_OUTPUT: &str = "Decoding object table:
 Name = 'LICENSE.txt', Size = 1518 byte(s)
 ";
 

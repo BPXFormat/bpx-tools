@@ -29,7 +29,7 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 
-const EXPECTED_OUTPUT: &'static str = "====> BPX Main Header <====
+const EXPECTED_OUTPUT: &str = "====> BPX Main Header <====
 Type: P
 Version: 1
 File size: 1632
