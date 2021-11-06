@@ -83,11 +83,11 @@ fn print_sht<TInterface: Interface>(bpx: &TInterface)
 
 fn hex_print<TWrite: Write>(block: &[u8], output: &mut TWrite) -> Result<()>
 {
-    for i in 0..block.len() {
+    for (i, byte) in block.iter().enumerate() {
         if i != 0 && i % 16 == 0 {
-            writeln!(output, "")?;
+            writeln!(output)?;
         }
-        write!(output, "{:02X} ", block[i])?;
+        write!(output, "{:02X} ", byte)?;
     }
     return Ok(());
 }
@@ -139,7 +139,7 @@ fn print_section_raw<TWrite: Write>(section: &Rc<AutoSection>, out: &mut TWrite)
     let mut buf: [u8; 8192] = [0; 8192];
     let mut res = rin.read(&mut buf)?;
     while res > 0 {
-        out.write(&buf[0..res])?;
+        out.write_all(&buf[0..res])?;
         res = rin.read(&mut buf)?;
     }
     return Ok(());

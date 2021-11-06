@@ -36,7 +36,7 @@ use crate::error::PackError;
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
 {
     let mut encoder = PackageBuilder::new()
-        .with_type(['B' as u8, 'D' as u8])
+        .with_type(*b"BD")
         .build(BufWriter::new(File::create(file)?))?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
