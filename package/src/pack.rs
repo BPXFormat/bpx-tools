@@ -47,5 +47,5 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
         pack_file(&mut encoder, Path::new(v))?;
     }
     encoder.save()?;
-    return Ok(());
+    Ok(())
 }

@@ -62,7 +62,7 @@ fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, ta
         }
         unpack_file(package, v, &dest)?;
     }
-    return Ok(());
+    Ok(())
 }
 
 pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
@@ -70,5 +70,5 @@ pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
     let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
 
     custom_unpack(&mut decoder, Path::new("."), verbose)?;
-    return Ok(());
+    Ok(())
 }

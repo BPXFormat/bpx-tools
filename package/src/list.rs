@@ -43,5 +43,5 @@ pub fn run(file: &Path) -> Result<(), UnpackError>
         let size = v.size;
         println!("Name = '{}', Size = {} byte(s)", name, size);
     }
-    return Ok(());
+    Ok(())
 }
