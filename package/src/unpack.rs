@@ -34,17 +34,16 @@ use std::io::BufReader;
 use bpx::decoder::IoBackend;
 
 use bpx::variant::{
-    package::{utils::unpack_file, PackageDecoder},
-    NamedTable
+    package::{utils::unpack_file, PackageDecoder}
 };
 use crate::error::UnpackError;
 
 fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, target: &Path, verbose: bool) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
-    let table = package.read_object_table()?;
-    for v in table.get_all() {
-        let mut path = String::from(package.get_object_name(v)?);
+    let (items, mut names) = package.read_object_table()?;
+    for v in &items {
+        let mut path = names.load(v)?.into();
         if path == "" {
             unnamed_count += 1;
             path = format!("unnamed_file_{}", unnamed_count);

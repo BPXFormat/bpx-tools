@@ -29,17 +29,17 @@
 use std::{fs::File, path::Path};
 use std::io::BufReader;
 
-use bpx::variant::{package::PackageDecoder, NamedTable};
+use bpx::variant::{package::PackageDecoder};
 use crate::error::UnpackError;
 
 pub fn run(file: &Path) -> Result<(), UnpackError>
 {
     let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
-    let table = decoder.read_object_table()?;
+    let (items, mut names) = decoder.read_object_table()?;
 
     println!("Decoding object table:");
-    for v in table.get_all() {
-        let name = decoder.get_object_name(v)?;
+    for v in &items {
+        let name = names.load(v)?;
         let size = v.size;
         println!("Name = '{}', Size = {} byte(s)", name, size);
     }
