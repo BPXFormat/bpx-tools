@@ -26,10 +26,10 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, path::Path};
-use std::io::BufReader;
+use std::{fs::File, io::BufReader, path::Path};
 
-use bpx::variant::{package::PackageDecoder};
+use bpx::variant::package::PackageDecoder;
+
 use crate::error::UnpackError;
 
 pub fn run(file: &Path) -> Result<(), UnpackError>

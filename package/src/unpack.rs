@@ -27,19 +27,24 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{
+    borrow::Cow,
     fs::File,
+    io::BufReader,
     path::{Path, PathBuf}
 };
-use std::borrow::Cow;
-use std::io::BufReader;
-use bpx::decoder::IoBackend;
 
-use bpx::variant::{
-    package::{utils::unpack_file, PackageDecoder}
+use bpx::{
+    decoder::IoBackend,
+    variant::package::{utils::unpack_file, PackageDecoder}
 };
+
 use crate::error::UnpackError;
 
-fn custom_unpack<TBackend: IoBackend>(package: &mut PackageDecoder<TBackend>, target: &Path, verbose: bool) -> Result<(), UnpackError>
+fn custom_unpack<TBackend: IoBackend>(
+    package: &mut PackageDecoder<TBackend>,
+    target: &Path,
+    verbose: bool
+) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
     let (items, mut names) = package.read_object_table()?;

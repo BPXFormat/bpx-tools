@@ -26,11 +26,11 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, path::Path};
-use std::io::BufWriter;
+use std::{fs::File, io::BufWriter, path::Path};
 
 use bpx::variant::package::{utils::pack_file, PackageBuilder};
 use clap::ArgMatches;
+
 use crate::error::PackError;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>

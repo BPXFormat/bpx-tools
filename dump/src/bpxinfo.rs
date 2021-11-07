@@ -26,8 +26,13 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, io::Write, path::Path, rc::Rc, string::String};
-use std::io::BufReader;
+use std::{
+    fs::File,
+    io::{BufReader, Write},
+    path::Path,
+    rc::Rc,
+    string::String
+};
 
 use bpx::{
     decoder::{Decoder, IoBackend},
