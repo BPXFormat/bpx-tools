@@ -65,9 +65,9 @@ impl Display for PackError
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
     {
         match self {
-            PackError::Bpxp(e) => f.write_fmt(format_args!("BPXP error: {}", e)),
-            PackError::Bpx(e) => f.write_fmt(format_args!("BPX error: {}", e)),
-            PackError::Io(e) => f.write_fmt(format_args!("IO error: {}", e))
+            PackError::Bpxp(e) => write!(f, "BPXP error: {}", e),
+            PackError::Bpx(e) => write!(f, "BPX error: {}", e),
+            PackError::Io(e) => write!(f, "IO error: {}", e)
         }
     }
 }
@@ -77,9 +77,9 @@ impl Display for UnpackError
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
     {
         match self {
-            UnpackError::Bpxp(e) => f.write_fmt(format_args!("BPXP error: {}", e)),
-            UnpackError::Io(e) => f.write_fmt(format_args!("IO error: {}", e)),
-            UnpackError::Strings(e) => f.write_fmt(format_args!("Strings error: {}", e))
+            UnpackError::Bpxp(e) => write!(f, "BPXP error: {}", e),
+            UnpackError::Io(e) => write!(f, "IO error: {}", e),
+            UnpackError::Strings(e) => write!(f, "Strings error: {}", e)
         }
     }
 }

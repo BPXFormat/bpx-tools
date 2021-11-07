@@ -55,12 +55,12 @@ impl Display for Error
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
     {
         match self {
-            Error::Bpx(e) => f.write_fmt(format_args!("BPX error: {}", e)),
-            Error::Io(e) => f.write_fmt(format_args!("IO error: {}", e)),
-            Error::Sd(e) => f.write_fmt(format_args!("BPXSD error: {}", e)),
-            Error::Section(e) => f.write_fmt(format_args!("Section error: {}", e)),
-            Error::Parsing(s) => f.write_fmt(format_args!("Could not parse value ({})", s)),
-            Error::SectionNotFound(id) => f.write_fmt(format_args!("Could not find section with index {}", id)),
+            Error::Bpx(e) => write!(f, "BPX error: {}", e),
+            Error::Io(e) => write!(f, "IO error: {}", e),
+            Error::Sd(e) => write!(f, "BPXSD error: {}", e),
+            Error::Section(e) => write!(f, "Section error: {}", e),
+            Error::Parsing(s) => write!(f, "Could not parse value ({})", s),
+            Error::SectionNotFound(id) => write!(f, "Could not find section with index {}", id),
             Error::BinaryOutput => f.write_str("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue")
         }
     }
