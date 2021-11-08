@@ -32,14 +32,14 @@ use bpx::macros::impl_err_conversion;
 
 pub enum UnpackError
 {
-    Bpxp(bpx::variant::package::error::ReadError),
+    Bpxp(bpx::package::error::ReadError),
     Io(std::io::Error),
     Strings(bpx::strings::ReadError)
 }
 
 impl_err_conversion!(
     UnpackError {
-        bpx::variant::package::error::ReadError => Bpxp,
+        bpx::package::error::ReadError => Bpxp,
         std::io::Error => Io,
         bpx::strings::ReadError => Strings
     }
@@ -47,14 +47,14 @@ impl_err_conversion!(
 
 pub enum PackError
 {
-    Bpxp(bpx::variant::package::error::WriteError),
+    Bpxp(bpx::package::error::WriteError),
     Bpx(bpx::error::WriteError),
     Io(std::io::Error)
 }
 
 impl_err_conversion!(
     PackError {
-        bpx::variant::package::error::WriteError => Bpxp,
+        bpx::package::error::WriteError => Bpxp,
         bpx::error::WriteError => Bpx,
         std::io::Error => Io
     }

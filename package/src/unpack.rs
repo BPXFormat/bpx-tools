@@ -35,7 +35,7 @@ use std::{
 
 use bpx::{
     decoder::IoBackend,
-    variant::package::{utils::unpack_file, PackageDecoder}
+    package::{utils::unpack_file, PackageDecoder}
 };
 
 use crate::error::UnpackError;

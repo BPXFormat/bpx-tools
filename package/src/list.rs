@@ -28,7 +28,7 @@
 
 use std::{fs::File, io::BufReader, path::Path};
 
-use bpx::variant::package::PackageDecoder;
+use bpx::package::PackageDecoder;
 
 use crate::error::UnpackError;
 
