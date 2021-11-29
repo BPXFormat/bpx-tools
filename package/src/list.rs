@@ -27,20 +27,18 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{fs::File, io::BufReader, path::Path};
-
-use bpx::package::PackageDecoder;
+use bpx::package::Package;
 
 use crate::error::UnpackError;
 
 pub fn run(file: &Path) -> Result<(), UnpackError>
 {
-    let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
-    let (items, mut names) = decoder.read_object_table()?;
+    let mut decoder = Package::open(BufReader::new(File::open(file)?))?;
 
     println!("Decoding object table:");
-    for v in &items {
-        let name = names.load(v)?;
-        let size = v.size;
+    for mut v in decoder.objects()? {
+        let size = v.size();
+        let name = v.load_name()?;
         println!("Name = '{}', Size = {} byte(s)", name, size);
     }
     Ok(())

@@ -26,18 +26,16 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{fs::File, io::BufWriter, path::Path};
+use std::{fs::File, path::Path};
 
-use bpx::package::{utils::pack_file, PackageBuilder};
+use bpx::package::{Builder, Package, utils::pack_file};
 use clap::ArgMatches;
 
 use crate::error::PackError;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
 {
-    let mut encoder = PackageBuilder::new()
-        .with_type(*b"BD")
-        .build(BufWriter::new(File::create(file)?))?;
+    let mut encoder = Package::create(File::create(file)?, Builder::new().with_type(*b"BD"))?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {

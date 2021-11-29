@@ -48,14 +48,14 @@ impl_err_conversion!(
 pub enum PackError
 {
     Bpxp(bpx::package::error::WriteError),
-    Bpx(bpx::error::WriteError),
+    Bpx(bpx::core::error::WriteError),
     Io(std::io::Error)
 }
 
 impl_err_conversion!(
     PackError {
         bpx::package::error::WriteError => Bpxp,
-        bpx::error::WriteError => Bpx,
+        bpx::core::error::WriteError => Bpx,
         std::io::Error => Io
     }
 );

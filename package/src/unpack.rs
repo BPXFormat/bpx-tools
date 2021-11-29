@@ -32,43 +32,41 @@ use std::{
     io::BufReader,
     path::{Path, PathBuf}
 };
-
-use bpx::{
-    decoder::IoBackend,
-    package::{utils::unpack_file, PackageDecoder}
-};
+use std::io::{Read, Seek};
+use bpx::package::Package;
 
 use crate::error::UnpackError;
 
-fn custom_unpack<TBackend: IoBackend>(
-    package: &mut PackageDecoder<TBackend>,
+fn custom_unpack<T: Read + Seek>(
+    package: &mut Package<T>,
     target: &Path,
     verbose: bool
 ) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
-    let (items, mut names) = package.read_object_table()?;
-    for v in &items {
-        let mut path: Cow<str> = names.load(v)?.into();
+    for mut v in package.objects()? {
+        let size = v.size();
+        let mut path: Cow<str> = v.load_name()?.into();
         if path.is_empty() {
             unnamed_count += 1;
             path = format!("unnamed_file_{}", unnamed_count).into();
         }
         if verbose {
-            println!("Unpacking object name {} with {} byte(s)...", path, v.size);
+            println!("Unpacking object name {} with {} byte(s)...", path, size);
         }
         let dest: PathBuf = [target, Path::new(path.as_ref())].iter().collect();
         if let Some(v) = dest.parent() {
             std::fs::create_dir_all(v)?;
         }
-        unpack_file(package, v, &dest)?;
+        let f = File::create(dest)?;
+        v.unpack(f)?;
     }
     Ok(())
 }
 
 pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
 {
-    let mut decoder = PackageDecoder::new(BufReader::new(File::open(file)?))?;
+    let mut decoder = Package::open(BufReader::new(File::open(file)?))?;
 
     custom_unpack(&mut decoder, Path::new("."), verbose)?;
     Ok(())
