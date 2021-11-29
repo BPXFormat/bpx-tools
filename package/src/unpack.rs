@@ -29,10 +29,10 @@
 use std::{
     borrow::Cow,
     fs::File,
-    io::BufReader,
+    io::{BufReader, Read, Seek},
     path::{Path, PathBuf}
 };
-use std::io::{Read, Seek};
+
 use bpx::package::Package;
 
 use crate::error::UnpackError;

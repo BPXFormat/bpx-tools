@@ -28,14 +28,16 @@
 
 use std::{
     fs::File,
-    io::{BufReader, Write},
+    io::{BufReader, Read, Seek, Write},
     path::Path,
     string::String
 };
-use std::io::{Read, Seek};
-use bpx::core::{Container, SectionMut};
-use bpx::core::header::{FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ, FLAG_COMPRESS_ZLIB};
 
+use bpx::core::{
+    header::{FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ, FLAG_COMPRESS_ZLIB},
+    Container,
+    SectionMut
+};
 use clap::ArgMatches;
 
 use super::type_ext_maps::get_type_ext_map;
@@ -73,7 +75,9 @@ fn print_sht<T>(bpx: &Container<T>)
         if v.flags & FLAG_CHECK_WEAK == FLAG_CHECK_WEAK {
             flags.push_str(" | CheckWeak");
         }
-        if v.flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK && v.flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32 {
+        if v.flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK
+            && v.flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32
+        {
             flags.push_str(" | CheckNone");
         }
         println!("\tFlags: {}", &flags[2..]);
@@ -113,7 +117,10 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
     Ok(())
 }
 
-fn print_section_hex<T: Read + Seek, TWrite: Write>(mut section: SectionMut<T>, out: &mut TWrite) -> Result<()>
+fn print_section_hex<T: Read + Seek, TWrite: Write>(
+    mut section: SectionMut<T>,
+    out: &mut TWrite
+) -> Result<()>
 {
     let rin = section.load()?;
     let mut buf: [u8; 8192] = [0; 8192];
@@ -126,7 +133,10 @@ fn print_section_hex<T: Read + Seek, TWrite: Write>(mut section: SectionMut<T>, 
     Ok(())
 }
 
-fn print_section_sd<T: Read + Seek, TWrite: Write>(mut section: SectionMut<T>, out: &mut TWrite) -> Result<()>
+fn print_section_sd<T: Read + Seek, TWrite: Write>(
+    mut section: SectionMut<T>,
+    out: &mut TWrite
+) -> Result<()>
 {
     let rin = section.load()?;
     let object = bpx::sd::Object::read(rin)?;
@@ -134,7 +144,10 @@ fn print_section_sd<T: Read + Seek, TWrite: Write>(mut section: SectionMut<T>, o
     Ok(())
 }
 
-fn print_section_raw<T: Read + Seek, TWrite: Write>(mut section: SectionMut<T>, out: &mut TWrite) -> Result<()>
+fn print_section_raw<T: Read + Seek, TWrite: Write>(
+    mut section: SectionMut<T>,
+    out: &mut TWrite
+) -> Result<()>
 {
     let rin = section.load()?;
     let mut buf: [u8; 8192] = [0; 8192];

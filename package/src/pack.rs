@@ -28,7 +28,7 @@
 
 use std::{fs::File, path::Path};
 
-use bpx::package::{Builder, Package, utils::pack_file};
+use bpx::package::{utils::pack_file, Builder, Package};
 use clap::ArgMatches;
 
 use crate::error::PackError;

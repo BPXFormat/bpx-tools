@@ -27,6 +27,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{fs::File, io::BufReader, path::Path};
+
 use bpx::package::Package;
 
 use crate::error::UnpackError;
