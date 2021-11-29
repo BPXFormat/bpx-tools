@@ -59,7 +59,7 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "bpx"
-version = "3.2.0"
+version = "4.0.0-preview1"
 dependencies = [
  "byteorder",
  "libz-sys",
