@@ -57,23 +57,23 @@ fn print_sht<T>(bpx: &Container<T>)
     println!("====> BPX Section Header Table <====");
     for v in bpx.iter() {
         println!("Section #{}:", v.index());
-        println!("\tType: {}", v.header().btype);
-        println!("\tSize (after compression): {}", v.header().csize);
-        println!("\tSize: {}", v.header().size);
+        println!("\tType: {}", v.btype);
+        println!("\tSize (after compression): {}", v.csize);
+        println!("\tSize: {}", v.size);
         let mut flags = String::new();
-        if v.header().flags & FLAG_COMPRESS_ZLIB == FLAG_COMPRESS_ZLIB {
+        if v.flags & FLAG_COMPRESS_ZLIB == FLAG_COMPRESS_ZLIB {
             flags.push_str(" | CompressZlib");
         }
-        if v.header().flags & FLAG_COMPRESS_XZ == FLAG_COMPRESS_XZ {
+        if v.flags & FLAG_COMPRESS_XZ == FLAG_COMPRESS_XZ {
             flags.push_str(" | CompressXZ");
         }
-        if v.header().flags & FLAG_CHECK_CRC32 == FLAG_CHECK_CRC32 {
+        if v.flags & FLAG_CHECK_CRC32 == FLAG_CHECK_CRC32 {
             flags.push_str(" | CheckCrc32");
         }
-        if v.header().flags & FLAG_CHECK_WEAK == FLAG_CHECK_WEAK {
+        if v.flags & FLAG_CHECK_WEAK == FLAG_CHECK_WEAK {
             flags.push_str(" | CheckWeak");
         }
-        if v.header().flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK && v.header().flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32 {
+        if v.flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK && v.flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32 {
             flags.push_str(" | CheckNone");
         }
         println!("\tFlags: {}", &flags[2..]);
