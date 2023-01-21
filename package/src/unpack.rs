@@ -44,9 +44,10 @@ fn custom_unpack<T: Read + Seek>(
 ) -> Result<(), UnpackError>
 {
     let mut unnamed_count = 0;
-    for mut v in package.objects()? {
-        let size = v.size();
-        let mut path: Cow<str> = v.load_name()?.into();
+    let objects = package.objects()?;
+    for v in &objects {
+        let size = v.size;
+        let mut path: Cow<str> = objects.load_name(v)?.into();
         if path.is_empty() {
             unnamed_count += 1;
             path = format!("unnamed_file_{}", unnamed_count).into();
@@ -59,7 +60,7 @@ fn custom_unpack<T: Read + Seek>(
             std::fs::create_dir_all(v)?;
         }
         let f = File::create(dest)?;
-        v.unpack(f)?;
+        objects.load(v, f)?;
     }
     Ok(())
 }

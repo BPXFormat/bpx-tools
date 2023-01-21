@@ -32,7 +32,7 @@ use clap::clap_app;
 
 mod bpxinfo;
 mod error;
-mod printsd;
+//mod printsd;
 mod type_ext_maps;
 
 fn main()

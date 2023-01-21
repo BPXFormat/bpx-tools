@@ -32,9 +32,10 @@ use bpx::macros::impl_err_conversion;
 
 pub enum Error
 {
-    Bpx(bpx::core::error::ReadError),
+    Bpx(bpx::core::error::Error),
     Io(std::io::Error),
-    Sd(bpx::sd::error::ReadError),
+    Sd(bpx::sd::error::Error),
+    TypeError(bpx::sd::error::TypeError),
     Parsing(String),
     SectionNotFound(u32),
     BinaryOutput
@@ -42,9 +43,10 @@ pub enum Error
 
 impl_err_conversion!(
     Error {
-        bpx::core::error::ReadError => Bpx,
+        bpx::core::error::Error => Bpx,
         std::io::Error => Io,
-        bpx::sd::error::ReadError => Sd
+        bpx::sd::error::Error => Sd,
+        bpx::sd::error::TypeError => TypeError
     }
 );
 
@@ -58,7 +60,8 @@ impl Display for Error
             Error::Sd(e) => write!(f, "BPXSD error: {}", e),
             Error::Parsing(s) => write!(f, "Could not parse value ({})", s),
             Error::SectionNotFound(id) => write!(f, "Could not find section with index {}", id),
-            Error::BinaryOutput => f.write_str("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue")
+            Error::BinaryOutput => f.write_str("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue"),
+            Error::TypeError(e) => write!(f, "BPXSD type error: {}", e)
         }
     }
 }

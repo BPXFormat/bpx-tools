@@ -35,9 +35,9 @@ use std::{
 
 use bpx::core::{
     header::{FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ, FLAG_COMPRESS_ZLIB},
-    Container,
-    SectionMut
+    Container
 };
+use bpx::sd::formatting::{Format, IndentType};
 use clap::ArgMatches;
 
 use super::type_ext_maps::get_type_ext_map;
@@ -46,7 +46,7 @@ use crate::error::{Error, Result};
 fn print_main_header<T>(bpx: &Container<T>)
 {
     println!("====> BPX Main Header <====");
-    println!("Type: {}", bpx.get_main_header().btype as char);
+    println!("Type: {}", bpx.get_main_header().ty as char);
     println!("Version: {}", bpx.get_main_header().version);
     println!("File size: {}", bpx.get_main_header().file_size);
     println!("Number of sections: {}", bpx.get_main_header().section_num);
@@ -57,26 +57,27 @@ fn print_main_header<T>(bpx: &Container<T>)
 fn print_sht<T>(bpx: &Container<T>)
 {
     println!("====> BPX Section Header Table <====");
-    for v in bpx.iter() {
-        println!("Section #{}:", v.index());
-        println!("\tType: {}", v.btype);
-        println!("\tSize (after compression): {}", v.csize);
-        println!("\tSize: {}", v.size);
+    for handle in bpx.sections() {
+        let header = bpx.sections().header(handle);
+        println!("Section #{}:", bpx.sections().index(handle));
+        println!("\tType: {}", header.ty);
+        println!("\tSize (after compression): {}", header.csize);
+        println!("\tSize: {}", header.size);
         let mut flags = String::new();
-        if v.flags & FLAG_COMPRESS_ZLIB == FLAG_COMPRESS_ZLIB {
+        if header.flags & FLAG_COMPRESS_ZLIB == FLAG_COMPRESS_ZLIB {
             flags.push_str(" | CompressZlib");
         }
-        if v.flags & FLAG_COMPRESS_XZ == FLAG_COMPRESS_XZ {
+        if header.flags & FLAG_COMPRESS_XZ == FLAG_COMPRESS_XZ {
             flags.push_str(" | CompressXZ");
         }
-        if v.flags & FLAG_CHECK_CRC32 == FLAG_CHECK_CRC32 {
+        if header.flags & FLAG_CHECK_CRC32 == FLAG_CHECK_CRC32 {
             flags.push_str(" | CheckCrc32");
         }
-        if v.flags & FLAG_CHECK_WEAK == FLAG_CHECK_WEAK {
+        if header.flags & FLAG_CHECK_WEAK == FLAG_CHECK_WEAK {
             flags.push_str(" | CheckWeak");
         }
-        if v.flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK
-            && v.flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32
+        if header.flags & FLAG_CHECK_WEAK != FLAG_CHECK_WEAK
+            && header.flags & FLAG_CHECK_CRC32 != FLAG_CHECK_CRC32
         {
             flags.push_str(" | CheckNone");
         }
@@ -104,7 +105,7 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
         hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
         println!();
     } else {
-        match get_type_ext_map(bpx.get_main_header().btype) {
+        match get_type_ext_map(bpx.get_main_header().ty) {
             Some(func) => func(&bpx.get_main_header().type_ext),
             None => {
                 hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
@@ -118,43 +119,41 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
 }
 
 fn print_section_hex<T: Read + Seek, TWrite: Write>(
-    mut section: SectionMut<T>,
+    mut section: T,
     out: &mut TWrite
 ) -> Result<()>
 {
-    let rin = section.load()?;
     let mut buf: [u8; 8192] = [0; 8192];
-    let mut res = rin.read(&mut buf)?;
+    let mut res = section.read(&mut buf)?;
     while res > 0 {
         hex_print(&buf[0..res], out)?;
-        res = rin.read(&mut buf)?;
+        res = section.read(&mut buf)?;
     }
     writeln!(out)?;
     Ok(())
 }
 
 fn print_section_sd<T: Read + Seek, TWrite: Write>(
-    mut section: SectionMut<T>,
+    section: T,
     out: &mut TWrite
 ) -> Result<()>
 {
-    let rin = section.load()?;
-    let object = bpx::sd::Object::read(rin)?;
-    super::printsd::print_object(1, &object, out)?;
+    let object = bpx::sd::Value::read(section)?;
+    let lazy = object.as_object().unwrap().format(IndentType::Spaces, 4);
+    writeln!(out, "{}", lazy)?;
     Ok(())
 }
 
 fn print_section_raw<T: Read + Seek, TWrite: Write>(
-    mut section: SectionMut<T>,
+    mut section: T,
     out: &mut TWrite
 ) -> Result<()>
 {
-    let rin = section.load()?;
     let mut buf: [u8; 8192] = [0; 8192];
-    let mut res = rin.read(&mut buf)?;
+    let mut res = section.read(&mut buf)?;
     while res > 0 {
         out.write_all(&buf[0..res])?;
-        res = rin.read(&mut buf)?;
+        res = section.read(&mut buf)?;
     }
     Ok(())
 }
@@ -188,15 +187,15 @@ fn open_section_print<T: Read + Seek, TWrite: Write>(
             )));
         }
     };
-    let section = match bpx.find_section_by_index(section_id) {
+    let section = match bpx.sections().find_by_index(section_id) {
         Some(section) => section,
         None => return Err(Error::SectionNotFound(section_id))
     };
-    let section = bpx.get_mut(section);
+    let mut section = bpx.sections().load(section)?;
     match opts.format {
-        PrintFormat::Hex => print_section_hex(section, &mut opts.output),
-        PrintFormat::Sd => print_section_sd(section, &mut opts.output),
-        PrintFormat::Raw => print_section_raw(section, &mut opts.output)
+        PrintFormat::Hex => print_section_hex(&mut *section, &mut opts.output),
+        PrintFormat::Sd => print_section_sd(&mut *section, &mut opts.output),
+        PrintFormat::Raw => print_section_raw(&mut *section, &mut opts.output)
     }
 }
 

@@ -28,7 +28,8 @@
 
 use std::{io::Write, string::String};
 
-use bpx::sd::{Array, DebugSymbols, Object, Value};
+use bpx::sd::{Array, Object, Value};
+use bpx::sd::debug::Debugger;
 
 use crate::error::Result;
 
@@ -83,24 +84,15 @@ fn print_array<TWrite: Write>(layer: usize, array: &Array, out: &mut TWrite) -> 
 pub fn print_object<TWrite: Write>(layer: usize, object: &Object, out: &mut TWrite) -> Result<()>
 {
     let prefix = gen_layer_prefix(layer);
-    let debugger = match DebugSymbols::read(object) {
-        Err(e) => {
-            eprintln!("Warning: failed to read Object debug layer ({})", e);
-            None
-        },
-        Ok(v) => Some(v)
-    };
+    let debugger = Debugger::attach(object)?;
 
     writeln!(out, "{{")?;
-    for key in object.get_keys() {
-        match &debugger {
-            None => write!(out, "{} {}", prefix, key)?,
-            Some(d) => match d.lookup(*key) {
-                None => write!(out, "{} {}", prefix, key)?,
-                Some(name) => write!(out, "{} {}", prefix, name)?
-            }
-        };
-        print_value(layer, &object[*key], out)?;
+    for (name, hash, value) in &debugger {
+        match name {
+            None => write!(out, "{} {}", prefix, hash)?,
+            Some(name) => write!(out, "{} {} ({})", prefix, name, hash)?,
+        }
+        print_value(layer, value, out)?;
     }
     println!("{}}}", gen_layer_prefix(layer - 1));
     Ok(())

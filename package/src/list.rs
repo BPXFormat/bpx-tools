@@ -34,12 +34,13 @@ use crate::error::UnpackError;
 
 pub fn run(file: &Path) -> Result<(), UnpackError>
 {
-    let mut decoder = Package::open(BufReader::new(File::open(file)?))?;
+    let decoder = Package::open(BufReader::new(File::open(file)?))?;
 
     println!("Decoding object table:");
-    for mut v in decoder.objects()? {
-        let size = v.size();
-        let name = v.load_name()?;
+    let objects = decoder.objects()?;
+    for v in &objects {
+        let size = v.size;
+        let name = objects.load_name(v)?;
         println!("Name = '{}', Size = {} byte(s)", name, size);
     }
     Ok(())
