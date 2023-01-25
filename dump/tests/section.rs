@@ -52,8 +52,7 @@ const EXPECTED_ERROR_RAW: &str =
 ";
 
 #[test]
-fn dump_section_hex_1()
-{
+fn dump_section_hex_1() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-xd", "0"])
@@ -62,8 +61,7 @@ fn dump_section_hex_1()
 }
 
 #[test]
-fn dump_section_hex_2()
-{
+fn dump_section_hex_2() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--dump", "0", "--hex"])
@@ -72,8 +70,7 @@ fn dump_section_hex_2()
 }
 
 #[test]
-fn dump_section_raw_1()
-{
+fn dump_section_raw_1() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "-d", "0"])
@@ -85,8 +82,7 @@ fn dump_section_raw_1()
 }
 
 #[test]
-fn dump_section_raw_2()
-{
+fn dump_section_raw_2() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx", "--dump", "0"])

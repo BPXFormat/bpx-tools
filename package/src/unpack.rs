@@ -30,7 +30,7 @@ use std::{
     borrow::Cow,
     fs::File,
     io::{BufReader, Read, Seek},
-    path::{Path, PathBuf}
+    path::{Path, PathBuf},
 };
 
 use bpx::package::Package;
@@ -40,9 +40,8 @@ use crate::error::UnpackError;
 fn custom_unpack<T: Read + Seek>(
     package: &mut Package<T>,
     target: &Path,
-    verbose: bool
-) -> Result<(), UnpackError>
-{
+    verbose: bool,
+) -> Result<(), UnpackError> {
     let mut unnamed_count = 0;
     let objects = package.objects()?;
     for v in &objects {
@@ -65,8 +64,7 @@ fn custom_unpack<T: Read + Seek>(
     Ok(())
 }
 
-pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError>
-{
+pub fn run(file: &Path, verbose: bool) -> Result<(), UnpackError> {
     let mut decoder = Package::open(BufReader::new(File::open(file)?))?;
 
     custom_unpack(&mut decoder, Path::new("."), verbose)?;

@@ -35,8 +35,7 @@ mod error;
 //mod printsd;
 mod type_ext_maps;
 
-fn main()
-{
+fn main() {
     let matches = clap_app!(bpxdump =>
         (version: "1.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
@@ -58,6 +57,6 @@ fn main()
         Err(e) => {
             eprintln!("{}", e);
             std::process::exit(1)
-        }
+        },
     }
 }

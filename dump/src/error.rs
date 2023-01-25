@@ -30,15 +30,14 @@ use std::fmt::{Display, Formatter};
 
 use bpx::macros::impl_err_conversion;
 
-pub enum Error
-{
+pub enum Error {
     Bpx(bpx::core::error::Error),
     Io(std::io::Error),
     Sd(bpx::sd::error::Error),
     TypeError(bpx::sd::error::TypeError),
     Parsing(String),
     SectionNotFound(u32),
-    BinaryOutput
+    BinaryOutput,
 }
 
 impl_err_conversion!(
@@ -50,10 +49,8 @@ impl_err_conversion!(
     }
 );
 
-impl Display for Error
-{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
-    {
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Bpx(e) => write!(f, "BPX error: {}", e),
             Error::Io(e) => write!(f, "IO error: {}", e),

@@ -32,8 +32,7 @@ use bpx::package::Package;
 
 use crate::error::UnpackError;
 
-pub fn run(file: &Path) -> Result<(), UnpackError>
-{
+pub fn run(file: &Path) -> Result<(), UnpackError> {
     let decoder = Package::open(BufReader::new(File::open(file)?))?;
 
     println!("Decoding object table:");

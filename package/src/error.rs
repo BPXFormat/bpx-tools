@@ -30,11 +30,10 @@ use std::fmt::{Display, Formatter};
 
 use bpx::macros::impl_err_conversion;
 
-pub enum UnpackError
-{
+pub enum UnpackError {
     Bpxp(bpx::package::error::Error),
     Io(std::io::Error),
-    Strings(bpx::strings::Error)
+    Strings(bpx::strings::Error),
 }
 
 impl_err_conversion!(
@@ -45,11 +44,10 @@ impl_err_conversion!(
     }
 );
 
-pub enum PackError
-{
+pub enum PackError {
     Bpxp(bpx::package::error::Error),
     Bpx(bpx::core::error::Error),
-    Io(std::io::Error)
+    Io(std::io::Error),
 }
 
 impl_err_conversion!(
@@ -60,26 +58,22 @@ impl_err_conversion!(
     }
 );
 
-impl Display for PackError
-{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
-    {
+impl Display for PackError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             PackError::Bpxp(e) => write!(f, "BPXP error: {}", e),
             PackError::Bpx(e) => write!(f, "BPX error: {}", e),
-            PackError::Io(e) => write!(f, "IO error: {}", e)
+            PackError::Io(e) => write!(f, "IO error: {}", e),
         }
     }
 }
 
-impl Display for UnpackError
-{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
-    {
+impl Display for UnpackError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             UnpackError::Bpxp(e) => write!(f, "BPXP error: {}", e),
             UnpackError::Io(e) => write!(f, "IO error: {}", e),
-            UnpackError::Strings(e) => write!(f, "Strings error: {}", e)
+            UnpackError::Strings(e) => write!(f, "Strings error: {}", e),
         }
     }
 }
