@@ -73,6 +73,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "bpxdbg"
+version = "0.1.0"
+
+[[package]]
 name = "bpxdump"
 version = "0.1.0"
 dependencies = [
