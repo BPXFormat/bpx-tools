@@ -28,7 +28,6 @@
 
 mod runtime;
 mod debug;
-mod command;
 
 fn main() {
 

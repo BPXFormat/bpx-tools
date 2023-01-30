@@ -53,9 +53,15 @@ impl<'a, T: std::error::Error + 'static> From<T> for Error<'a> {
     }
 }
 
+pub struct Command<'a> {
+    pub cmd: &'a str,
+    pub usage: &'a str,
+    pub note: &'a str
+}
+
 pub trait Debugger {
     const TYPE_CODE: u8;
-    fn available_commands(&self) -> &[&str];
+    fn available_commands(&self) -> &[Command];
     fn on_command<'a>(&mut self, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>>;
 }
 
@@ -68,7 +74,7 @@ macro_rules! impl_debugger {
         impl<T: Read + Seek> Debugger for DynamicDebugger<T> {
             const TYPE_CODE: u8 = 0;
 
-            fn available_commands(&self) -> &[&str] {
+            fn available_commands(&self) -> &[Command] {
                 match self {
                     $(
                         Self::$name(v) => v.available_commands()

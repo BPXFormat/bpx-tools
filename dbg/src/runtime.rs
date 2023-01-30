@@ -28,7 +28,7 @@
 
 use std::fmt::{Display, Formatter};
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::BufReader;
 use std::path::Path;
 use bpx::core::Container;
 use crate::debug::{Debugger, DynamicDebugger};
@@ -76,9 +76,17 @@ impl Runtime {
         })
     }
 
-    pub fn run(&mut self, command_line: &str) -> Result<(), Error> {
+    pub fn run<'a>(&mut self, command_line: &'a str) -> Result<(), Error<'a>> {
         let mut args = command_line.split(" ");
         if let Some(cmd) = args.next() {
+            if cmd == "help" {
+                let commands = self.debugger.available_commands();
+                println!("{} command(s) available:", commands.len());
+                for cmd in commands {
+                    println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
+                }
+                println!();
+            }
             self.debugger.on_command(cmd, args).map_err(Error::Debugger)?;
         }
         Ok(())
