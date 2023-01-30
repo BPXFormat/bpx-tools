@@ -26,15 +26,25 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::fmt::{Display, Formatter};
 use std::io::{Read, Seek};
 
+#[derive(Debug)]
 pub enum Error<'a> {
     InvalidCommand {
         msg: &'static str,
-        command: &'a str,
-        args: &'a [&'a str]
+        command: &'a str
     },
     Other(Box<dyn std::error::Error>)
+}
+
+impl<'a> Display for Error<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::InvalidCommand { msg, command } => write!(f, "invalid command {}: {}", command, msg),
+            Error::Other(e) => write!(f, "{}", e)
+        }
+    }
 }
 
 impl<'a, T: std::error::Error + 'static> From<T> for Error<'a> {
@@ -46,7 +56,7 @@ impl<'a, T: std::error::Error + 'static> From<T> for Error<'a> {
 pub trait Debugger {
     const TYPE_CODE: u8;
     fn available_commands(&self) -> &[&str];
-    fn on_command(&mut self, cmd: &str, args: &[&str]) -> Result<(), Error>;
+    fn on_command<'a>(&mut self, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>>;
 }
 
 pub trait New<T: Read + Seek>: Debugger + Sized {
@@ -66,7 +76,7 @@ macro_rules! impl_debugger {
                 }
             }
 
-            fn on_command(&mut self, cmd: &str, args: &[&str]) -> Result<(), Error> {
+            fn on_command<'a>(&mut self, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>> {
                 match self {
                     $(
                         Self::$name(v) => v.on_command(cmd, args),

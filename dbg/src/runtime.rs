@@ -26,27 +26,60 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use bpx::core::Container;
+use crate::debug::{Debugger, DynamicDebugger};
+
+#[derive(Debug)]
+pub enum Error<'a> {
+    UnknownTypeCode(u8),
+    Io(std::io::Error),
+    Bpx(bpx::core::error::Error),
+    Debugger(crate::debug::Error<'a>)
+}
+
+impl<'a> Display for Error<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::Io(e) => write!(f, "failed to open file: {}", e),
+            Error::Bpx(e) => write!(f, "failed to open BPX container: {}", e),
+            Error::Debugger(e) => write!(f, "debugger error: {}", e),
+            Error::UnknownTypeCode(code) => {
+                match char::try_from(*code as u32) {
+                    Ok(v) => write!(f, "no debugger found for BPX type {}", v),
+                    Err(_) => write!(f, "no debugger found for BPX type code 0x{:X}", code)
+                }
+            }
+        }
+    }
+}
+
+impl<'a> std::error::Error for Error<'a> { }
 
 pub struct Runtime {
-
+    debugger: DynamicDebugger<BufReader<File>>
 }
 
 impl Runtime {
-    pub fn new(path: &Path) -> bpx::core::Result<()> {
-        let container = Container::open(File::open(path)?)?;
-
-        Ok(())
+    pub fn new(path: &Path) -> Result<Runtime, Error<'static>> {
+        let file = File::open(path).map_err(Error::Io)?;
+        let container = Container::open(BufReader::new(file))
+            .map_err(Error::Bpx)?;
+        let fuckingrust = container.main_header().ty;
+        let debugger = DynamicDebugger::from_type_code(fuckingrust, container)
+            .ok_or_else(|| Error::UnknownTypeCode(fuckingrust))?.map_err(Error::Debugger)?;
+        Ok(Runtime {
+            debugger
+        })
     }
 
-    pub fn run() -> std::io::Result<()> {
-        let lines = BufReader::new(std::io::stdin()).lines();
-        for line in lines {
-            let line = line?;
-
+    pub fn run(&mut self, command_line: &str) -> Result<(), Error> {
+        let mut args = command_line.split(" ");
+        if let Some(cmd) = args.next() {
+            self.debugger.on_command(cmd, args).map_err(Error::Debugger)?;
         }
         Ok(())
     }
