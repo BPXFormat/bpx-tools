@@ -49,13 +49,15 @@ pub trait Debugger {
     fn on_command(&mut self, cmd: &str, args: &[&str]) -> Result<(), Error>;
 }
 
-pub trait New<T: Read + Seek>: Debugger {
-    fn new(container: bpx::core::Container<T>) -> Result<(), Error<'static>>;
+pub trait New<T: Read + Seek>: Debugger + Sized {
+    fn new(container: bpx::core::Container<T>) -> Result<Self, Error<'static>>;
 }
 
 macro_rules! impl_debugger {
-    ($d: ty { $($name: ident),* }) => {
-        impl<T: Read + Seek> Debugger for $d<T> {
+    ({ $($name: ident),* }) => {
+        impl<T: Read + Seek> Debugger for DynamicDebugger<T> {
+            const TYPE_CODE: u8 = 0;
+
             fn available_commands(&self) -> &[&str] {
                 match self {
                     $(

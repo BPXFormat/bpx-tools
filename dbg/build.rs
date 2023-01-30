@@ -80,16 +80,16 @@ fn write_file(filters: Vec<String>, out_file: &Path) -> io::Result<()> {
         .map(|(module, obj)| format!("{}({}::{}<T>),", obj, module, obj)).collect();
     let variants_from_name: Vec<String> = filters.iter()
         .map(|v| (v, snake_case_to_pascal_case(v)))
-        .map(|(module, obj)| format!("<{}::{}<T> as crate::debug::Debugger>::TYPE_CODE => Some(<{}::{}<T> as crate::filter::New<T>>::new(container).map(DynamicDebugger::{}))", module, obj, module, obj, obj)).collect();
+        .map(|(module, obj)| format!("<{}::{}<T> as crate::debug::Debugger>::TYPE_CODE => Some(<{}::{}<T> as crate::debug::New<T>>::new(container).map(DynamicDebugger::{}))", module, obj, module, obj, obj)).collect();
     writeln!(file, "{}", module_imports.join("\n"))?;
     writeln!(file, "pub enum DynamicDebugger<T> {{")?;
     writeln!(file, "    {}", variants_debugger.join("\n"))?;
     writeln!(file, "}}")?;
     writeln!(file, "")?;
-    writeln!(file, "impl_debugger!(DynamicDebugger {{ {} }});", variants)?;
+    writeln!(file, "impl_debugger!({{ {} }});", variants)?;
     writeln!(file, "")?;
-    writeln!(file, "impl DynamicDebugger {{")?;
-    writeln!(file, "    pub fn from_name<T: Read + Seek>(type_code: u8, container: bpx::core::Container<T>) -> Option<Result<DynamicDebugger<T>, Error<'static>>> {{")?;
+    writeln!(file, "impl<T: Read + Seek> DynamicDebugger<T> {{")?;
+    writeln!(file, "    pub fn from_type_code(type_code: u8, container: bpx::core::Container<T>) -> Option<Result<DynamicDebugger<T>, Error<'static>>> {{")?;
     writeln!(file, "        match type_code {{")?;
     writeln!(file, "            {},", variants_from_name.join(",\n"))?;
     writeln!(file, "            _ => None")?;
