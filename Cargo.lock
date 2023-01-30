@@ -77,9 +77,11 @@ name = "bpx"
 version = "4.0.0-beta-8.1.0"
 dependencies = [
  "byteorder",
+ "elsa",
  "libz-sys",
  "lzma-sys",
  "num_cpus",
+ "once_cell",
  "tempfile",
 ]
 

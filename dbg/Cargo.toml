@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bpx = { version = "4.0.0-beta-8.1.0", path = "../../bpx-rs" }
+bpx = { version = "4.0.0-beta-8.1.0", path = "../../bpx-rs", features = ["package"] }
 serde = { version = "1.0.152", features = ["derive"] }

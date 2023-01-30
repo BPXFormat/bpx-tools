@@ -79,15 +79,23 @@ impl Runtime {
     pub fn run<'a>(&mut self, command_line: &'a str) -> Result<(), Error<'a>> {
         let mut args = command_line.split(" ");
         if let Some(cmd) = args.next() {
-            if cmd == "help" {
-                let commands = self.debugger.available_commands();
-                println!("{} command(s) available:", commands.len());
-                for cmd in commands {
-                    println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
+            let commands = self.debugger.available_commands();
+            match cmd {
+                "help" => {
+                    println!("{} command(s) available:", commands.len());
+                    for cmd in commands {
+                        println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
+                    }
+                    println!();
+                },
+                _ => {
+                    if commands.iter().any(|v| v.cmd == cmd) {
+                        self.debugger.on_command(cmd, args).map_err(Error::Debugger)?;
+                    } else {
+                        println!("Unknown command '{}', type 'help' for help", cmd);
+                    }
                 }
-                println!();
             }
-            self.debugger.on_command(cmd, args).map_err(Error::Debugger)?;
         }
         Ok(())
     }
