@@ -50,7 +50,7 @@ pub trait Debugger {
 }
 
 pub trait New<T: Read + Seek>: Debugger {
-    fn new(container: bpx::core::Container<T>) -> Result<(), Error>;
+    fn new(container: bpx::core::Container<T>) -> Result<(), Error<'static>>;
 }
 
 macro_rules! impl_debugger {

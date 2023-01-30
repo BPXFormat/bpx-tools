@@ -49,7 +49,7 @@ fn snake_case_to_pascal_case(mut name: &str) -> String {
 }
 
 fn list_filters() -> io::Result<Vec<String>> {
-    let path = Path::new("src/filter");
+    let path = Path::new("src/debug");
     let mut names = Vec::new();
     for v in std::fs::read_dir(path)? {
         let entry = v?;
@@ -103,7 +103,7 @@ fn main() {
     let out_file = std::env::var_os("OUT_DIR")
         .map(|v| Path::new(&v).join("filters.rs"))
         .expect("Could not obtain Cargo output directory");
-    let filters = list_filters().expect("Failed to obtain the list of available filters");
-    write_file(filters, &out_file).expect("Failed to generate filter registry");
-    println!("cargo:rustc-env=SRC_FILTER_REGISTRY={}", out_file.to_string_lossy());
+    let filters = list_filters().expect("Failed to obtain the list of available debuggers");
+    write_file(filters, &out_file).expect("Failed to generate debugger registry");
+    println!("cargo:rustc-env=SRC_DEBUGGER_REGISTRY={}", out_file.to_string_lossy());
 }
