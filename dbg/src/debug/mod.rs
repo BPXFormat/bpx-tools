@@ -26,9 +26,51 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-mod runtime;
-mod debug;
+use std::io::{Read, Seek};
 
-fn main() {
+pub enum Error<'a> {
+    InvalidCommand {
+        msg: &'static str,
+        command: &'a str,
+        args: &'a [&'a str]
+    },
+    Other(Box<dyn std::error::Error>)
+}
 
+impl<'a, T: std::error::Error + 'static> From<T> for Error<'a> {
+    fn from(value: T) -> Self {
+        Error::Other(Box::new(value))
+    }
+}
+
+pub trait Debugger {
+    const TYPE_CODE: u8;
+    fn available_commands(&self) -> &[&str];
+    fn on_command(&mut self, cmd: &str, args: &[&str]) -> Result<(), Error>;
+}
+
+pub trait New<T: Read + Seek>: Debugger {
+    fn new(container: bpx::core::Container<T>) -> Result<(), Error>;
+}
+
+macro_rules! impl_debugger {
+    ($d: ty { $($name: ident),* }) => {
+        impl<T: Read + Seek> Debugger for $d<T> {
+            fn available_commands(&self) -> &[&str] {
+                match self {
+                    $(
+                        Self::$name(v) => v.available_commands()
+                    )*
+                }
+            }
+
+            fn on_command(&mut self, cmd: &str, args: &[&str]) -> Result<(), Error> {
+                match self {
+                    $(
+                        Self::$name(v) => v.on_command(cmd, args),
+                    )*
+                }
+            }
+        }
+    }
 }

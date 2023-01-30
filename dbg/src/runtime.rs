@@ -26,9 +26,28 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-mod runtime;
-mod debug;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::Path;
+use bpx::core::Container;
 
-fn main() {
+pub struct Runtime {
 
+}
+
+impl Runtime {
+    pub fn new(path: &Path) -> bpx::core::Result<()> {
+        let container = Container::open(File::open(path)?)?;
+
+        Ok(())
+    }
+
+    pub fn run() -> std::io::Result<()> {
+        let lines = BufReader::new(std::io::stdin()).lines();
+        for line in lines {
+            let line = line?;
+
+        }
+        Ok(())
+    }
 }
