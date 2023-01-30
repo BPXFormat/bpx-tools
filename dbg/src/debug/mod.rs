@@ -74,3 +74,5 @@ macro_rules! impl_debugger {
         }
     }
 }
+
+include!(env!("SRC_DEBUGGER_REGISTRY"));

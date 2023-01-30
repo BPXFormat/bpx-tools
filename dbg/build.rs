@@ -89,7 +89,7 @@ fn write_file(filters: Vec<String>, out_file: &Path) -> io::Result<()> {
     writeln!(file, "impl_debugger!(DynamicDebugger {{ {} }});", variants)?;
     writeln!(file, "")?;
     writeln!(file, "impl DynamicDebugger {{")?;
-    writeln!(file, "    pub fn from_name<T: Read + Seek>(type_code: u8, container: bpx::core::Container<T>) -> Option<Result<DynamicDebugger<T>, Error>> {{")?;
+    writeln!(file, "    pub fn from_name<T: Read + Seek>(type_code: u8, container: bpx::core::Container<T>) -> Option<Result<DynamicDebugger<T>, Error<'static>>> {{")?;
     writeln!(file, "        match type_code {{")?;
     writeln!(file, "            {},", variants_from_name.join(",\n"))?;
     writeln!(file, "            _ => None")?;
@@ -101,7 +101,7 @@ fn write_file(filters: Vec<String>, out_file: &Path) -> io::Result<()> {
 
 fn main() {
     let out_file = std::env::var_os("OUT_DIR")
-        .map(|v| Path::new(&v).join("filters.rs"))
+        .map(|v| Path::new(&v).join("debuggers.rs"))
         .expect("Could not obtain Cargo output directory");
     let filters = list_filters().expect("Failed to obtain the list of available debuggers");
     write_file(filters, &out_file).expect("Failed to generate debugger registry");
