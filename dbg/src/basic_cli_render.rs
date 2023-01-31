@@ -45,7 +45,7 @@ pub struct BasicCliRow {
 impl Row for BasicCliRow {
     fn value<T: Display>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
-            print!("|{:─^width$}|", val, width=self.columns[self.row_id]);
+            print!("|{: ^width$}|", val, width=self.columns[self.row_id]);
         }
         self.row_id += 1;
         self
@@ -53,16 +53,10 @@ impl Row for BasicCliRow {
 
     fn valued<T: Debug>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
-            print!("|{:─^width$?}|", val, width=self.columns[self.row_id]);
+            print!("|{: ^width$?}|", val, width=self.columns[self.row_id]);
         }
         self.row_id += 1;
         self
-    }
-}
-
-impl Drop for BasicCliRow {
-    fn drop(&mut self) {
-        println!();
     }
 }
 
@@ -83,6 +77,16 @@ impl Table for BasicCliTable {
             columns: self.columns.clone(),
             row_id: 0
         }
+    }
+}
+
+impl Drop for BasicCliTable {
+    fn drop(&mut self) {
+        println!();
+        for v in &*self.columns {
+            print!("└{:─^width$}┘", "", width=v);
+        }
+        println!();
     }
 }
 
