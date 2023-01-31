@@ -28,6 +28,7 @@
 
 use std::fmt::{Display, Formatter};
 use std::io::{Read, Seek};
+use std::str::FromStr;
 use crate::render::Render;
 
 #[derive(Debug)]
@@ -68,6 +69,20 @@ pub trait Debugger {
 
 pub trait New<T: Read + Seek>: Debugger + Sized {
     fn new(container: bpx::core::Container<T>) -> Result<Self, Error<'static>>;
+}
+
+pub fn check_arg<'a, I: Iterator<Item = &'a str>, T: FromStr>(cmd: &'a str, args: &mut I) -> Result<T, Error<'a>> {
+    let val = match args.next() {
+        Some(v) => v,
+        None => return Err(Error::InvalidCommand {
+            command: cmd,
+            msg: "Missing argument"
+        })
+    };
+    val.parse().map_err(|_| Error::InvalidCommand {
+        command: cmd,
+        msg: "Parse error"
+    })
 }
 
 macro_rules! impl_debugger {

@@ -28,8 +28,8 @@
 
 use std::io::{Read, Seek};
 use bpx::core::Container;
-use crate::debug::{Command, Debugger, Error, New};
-use crate::render::{Group, Render, Row, Table};
+use crate::debug::{check_arg, Command, Debugger, Error, New};
+use crate::render::{ContentType, Group, Render, Row, Table};
 
 pub struct Package<T> {
     package: bpx::package::Package<T>
@@ -54,11 +54,16 @@ impl<T: Read + Seek> Debugger for Package<T> {
                 cmd: "objects",
                 usage: "objects",
                 note: "Display the object table",
+            },
+            Command {
+                cmd: "object",
+                usage: "object index:usize",
+                note: "Display the content of an object"
             }
         ]
     }
 
-    fn on_command<'a, R: Render>(&mut self, render: &mut R, cmd: &'a str, _: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>> {
+    fn on_command<'a, R: Render>(&mut self, render: &mut R, cmd: &'a str, mut args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>> {
         match cmd {
             "settings" => {
                 let settings = self.package.settings();
@@ -81,15 +86,31 @@ impl<T: Read + Seek> Debugger for Package<T> {
                 let objects = self.package.objects()?;
                 let mut table = render.table("Objects");
                 table.col("Name", 48)
+                    .col("Index", 5)
                     .col("Start", 5)
                     .col("Offset", 10)
                     .col("Size", 10);
-                for header in &objects {
-                    table.row().value(objects.load_name(header)?)
+                for (index, header) in objects.iter().enumerate() {
+                    table.row().value(objects.load_name(header)?).value(index)
                         .value(header.start).value(header.offset).value(header.size);
                 }
                 Ok(())
-            }
+            },
+            "object" => {
+                let index: usize = check_arg(cmd, &mut args)?;
+                let objects = self.package.objects()?;
+                match objects.iter().enumerate().find(|(i, _)| *i == index).map(|(_, v)| v) {
+                    None => Err(Error::InvalidCommand {
+                        command: cmd,
+                        msg: "Unknown object index"
+                    }),
+                    Some(header) => {
+                        let stream = render.raw(objects.load_name(header)?, ContentType::Unknown);
+                        objects.load(header, stream)?;
+                        Ok(())
+                    }
+                }
+            },
             _ => unreachable!()
         }
     }
