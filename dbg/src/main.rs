@@ -29,9 +29,12 @@
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::io::Write;
+use crate::basic_cli_render::BasicCliRender;
 
 mod runtime;
 mod debug;
+mod render;
+mod basic_cli_render;
 
 fn print_prompt() {
     let mut lock = std::io::stdout().lock();
@@ -39,7 +42,7 @@ fn print_prompt() {
     lock.flush().unwrap();
 }
 
-fn run(mut runtime: runtime::Runtime) -> std::io::Result<()> {
+fn run(mut runtime: runtime::Runtime<BasicCliRender>) -> std::io::Result<()> {
     let lines = BufReader::new(std::io::stdin()).lines();
     print_prompt();
     for line in lines {
@@ -60,7 +63,7 @@ fn main() {
     }
     args.next();
     let path = args.next().map(PathBuf::from).unwrap();
-    let runtime = match runtime::Runtime::new(&path) {
+    let runtime = match runtime::Runtime::new(&path, BasicCliRender) {
         Ok(v) => v,
         Err(e) => {
             eprintln!("couldn't load target: {}", e);
