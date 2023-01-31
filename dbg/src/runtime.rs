@@ -86,7 +86,6 @@ impl Runtime {
                     for cmd in commands {
                         println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
                     }
-                    println!();
                 },
                 _ => {
                     if commands.iter().any(|v| v.cmd == cmd) {
@@ -96,6 +95,7 @@ impl Runtime {
                     }
                 }
             }
+            println!();
         }
         Ok(())
     }

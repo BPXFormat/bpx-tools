@@ -26,9 +26,49 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+use std::io::Write;
+
 mod runtime;
 mod debug;
 
-fn main() {
+fn print_prompt() {
+    let mut lock = std::io::stdout().lock();
+    write!(lock, "> ").unwrap();
+    lock.flush().unwrap();
+}
 
+fn run(mut runtime: runtime::Runtime) -> std::io::Result<()> {
+    let lines = BufReader::new(std::io::stdin()).lines();
+    print_prompt();
+    for line in lines {
+        let line = line?;
+        if let Err(e) = runtime.run(&line) {
+            println!("failed to run '{}': {}", line, e);
+        }
+        print_prompt();
+    }
+    Ok(())
+}
+
+fn main() {
+    let mut args = std::env::args_os();
+    if args.len() != 2 {
+        eprintln!("USAGE: {:?} <path to executable file>", args.next());
+        std::process::exit(1);
+    }
+    args.next();
+    let path = args.next().map(PathBuf::from).unwrap();
+    let runtime = match runtime::Runtime::new(&path) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("couldn't load target: {}", e);
+            std::process::exit(1);
+        }
+    };
+    if let Err(e) = run(runtime) {
+        eprintln!("failed to read standard input: {}", e);
+        std::process::exit(1);
+    }
 }
