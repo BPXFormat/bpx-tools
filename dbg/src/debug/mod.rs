@@ -28,6 +28,7 @@
 
 use std::fmt::{Display, Formatter};
 use std::io::{Read, Seek};
+use crate::render::Render;
 
 #[derive(Debug)]
 pub enum Error<'a> {
@@ -62,7 +63,7 @@ pub struct Command<'a> {
 pub trait Debugger {
     const TYPE_CODE: u8;
     fn available_commands(&self) -> &[Command];
-    fn on_command<'a>(&mut self, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>>;
+    fn on_command<'a, R: Render>(&mut self, render: &mut R, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>>;
 }
 
 pub trait New<T: Read + Seek>: Debugger + Sized {
@@ -82,10 +83,10 @@ macro_rules! impl_debugger {
                 }
             }
 
-            fn on_command<'a>(&mut self, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>> {
+            fn on_command<'a, R: Render>(&mut self, render: &mut R, cmd: &'a str, args: impl Iterator<Item = &'a str>) -> Result<(), Error<'a>> {
                 match self {
                     $(
-                        Self::$name(v) => v.on_command(cmd, args),
+                        Self::$name(v) => v.on_command(render, cmd, args),
                     )*
                 }
             }

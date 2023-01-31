@@ -32,6 +32,7 @@ use std::io::BufReader;
 use std::path::Path;
 use bpx::core::Container;
 use crate::debug::{Debugger, DynamicDebugger};
+use crate::render::{Item, List, Render};
 
 #[derive(Debug)]
 pub enum Error<'a> {
@@ -59,12 +60,13 @@ impl<'a> Display for Error<'a> {
 
 impl<'a> std::error::Error for Error<'a> { }
 
-pub struct Runtime {
-    debugger: DynamicDebugger<BufReader<File>>
+pub struct Runtime<R> {
+    debugger: DynamicDebugger<BufReader<File>>,
+    render: R
 }
 
-impl Runtime {
-    pub fn new(path: &Path) -> Result<Runtime, Error<'static>> {
+impl<R: Render> Runtime<R> {
+    pub fn new(path: &Path, render: R) -> Result<Runtime<R>, Error<'static>> {
         let file = File::open(path).map_err(Error::Io)?;
         let container = Container::open(BufReader::new(file))
             .map_err(Error::Bpx)?;
@@ -72,7 +74,8 @@ impl Runtime {
         let debugger = DynamicDebugger::from_type_code(fuckingrust, container)
             .ok_or_else(|| Error::UnknownTypeCode(fuckingrust))?.map_err(Error::Debugger)?;
         Ok(Runtime {
-            debugger
+            debugger,
+            render
         })
     }
 
@@ -82,14 +85,16 @@ impl Runtime {
             let commands = self.debugger.available_commands();
             match cmd {
                 "help" => {
-                    println!("{} command(s) available:", commands.len());
+                    let mut list = self.render.list("Commands", commands.len());
+                    //println!("{} command(s) available:", commands.len());
                     for cmd in commands {
-                        println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
+                        list.item().value(cmd.cmd).description(cmd.usage).note(cmd.note);
+                        //println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
                     }
                 },
                 _ => {
                     if commands.iter().any(|v| v.cmd == cmd) {
-                        self.debugger.on_command(cmd, args).map_err(Error::Debugger)?;
+                        self.debugger.on_command(&mut self.render, cmd, args).map_err(Error::Debugger)?;
                     } else {
                         println!("Unknown command '{}', type 'help' for help", cmd);
                     }
