@@ -86,10 +86,8 @@ impl<R: Render> Runtime<R> {
             match cmd {
                 "help" => {
                     let mut list = self.render.list("Commands", commands.len());
-                    //println!("{} command(s) available:", commands.len());
                     for cmd in commands {
                         list.item().value(cmd.cmd).description(cmd.usage).note(cmd.note);
-                        //println!("  * {} ({}):\t{}", cmd.cmd, cmd.usage, cmd.note);
                     }
                 },
                 _ => {
