@@ -44,7 +44,7 @@ pub trait Table {
 pub trait Group {
     fn value<N: AsRef<str>, T: Display>(&mut self, name: N, val: T) -> &mut Self;
     fn valued<N: AsRef<str>, T: Debug>(&mut self, name: N, val: T) -> &mut Self;
-    fn bpxsd(&mut self, value: &Value) -> &mut Self;
+    fn bpxsd<N: AsRef<str>>(&mut self, name: N, value: &Value) -> &mut Self;
 }
 
 pub trait Item {
