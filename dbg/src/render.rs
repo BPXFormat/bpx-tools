@@ -27,6 +27,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::fmt::{Debug, Display};
+use std::io::Write;
 use bpx::sd::Value;
 
 pub trait Row {
@@ -60,14 +61,26 @@ pub trait List {
     fn item(&mut self) -> Self::Item;
 }
 
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
+pub enum ContentType {
+    ImagePpm,
+    ImageJpeg,
+    ImagePng,
+    ImageUnknown,
+    Text,
+    Unknown
+}
+
 pub trait Render {
     type Table: Table;
     type Group: Group;
     type List: List;
+    type RawStream: Write;
 
     fn table<T: AsRef<str>>(&mut self, name: T) -> Self::Table;
     fn group<T: AsRef<str>>(&mut self, name: T) -> Self::Group;
     fn list<T: AsRef<str>>(&mut self, name: T, length: usize) -> Self::List;
     fn text<T: AsRef<str>>(&mut self, text: T);
     fn bpxsd(&mut self, value: &Value);
+    fn raw<T: AsRef<str>>(&mut self, name: T, content_type: ContentType) -> Self::RawStream;
 }

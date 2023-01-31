@@ -27,10 +27,11 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::fmt::{Debug, Display};
+use std::io::Write;
 use std::rc::Rc;
 use bpx::sd::formatting::{Format, IndentType};
 use bpx::sd::Value;
-use crate::render::{Group, Item, List, Render, Row, Table};
+use crate::render::{ContentType, Group, Item, List, Render, Row, Table};
 
 pub struct BasicCliRender;
 pub struct BasicCliListItem;
@@ -148,10 +149,32 @@ impl Group for BasicCliRender {
     }
 }
 
+pub enum RawStream {
+    Stdout,
+    Null
+}
+
+impl Write for RawStream {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        match self {
+            RawStream::Stdout => std::io::stdout().write(buf),
+            RawStream::Null => Ok(buf.len())
+        }
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        match self {
+            RawStream::Stdout => std::io::stdout().flush(),
+            RawStream::Null => Ok(())
+        }
+    }
+}
+
 impl Render for BasicCliRender {
     type Table = BasicCliTable;
     type Group = BasicCliRender;
     type List = BasicCliRender;
+    type RawStream = RawStream;
 
     fn table<T: AsRef<str>>(&mut self, name: T) -> Self::Table {
         println!("{}:", name.as_ref());
@@ -182,6 +205,16 @@ impl Render for BasicCliRender {
         match value.as_object() {
             None => println!("No BPXSD object, is the version of BPX really supported?"),
             Some(v) => println!("{}", v.format(IndentType::Spaces, 4))
+        }
+    }
+
+    fn raw<T: AsRef<str>>(&mut self, name: T, content_type: ContentType) -> Self::RawStream {
+        if content_type == ContentType::Text {
+            println!("{}: {:?} >", name.as_ref(), content_type);
+            RawStream::Stdout
+        } else {
+            println!("{}: {:?} (no preview available)", name.as_ref(), content_type);
+            RawStream::Null
         }
     }
 }
