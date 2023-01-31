@@ -31,19 +31,24 @@ use std::io::Write;
 use std::rc::Rc;
 use bpx::sd::formatting::{Format, IndentType};
 use bpx::sd::Value;
-use crate::render::{ContentType, Group, Item, List, Render, Row, Table};
+use bpxdbg::render;
+use bpxdbg::render::ContentType;
 
-pub struct BasicCliRender;
-pub struct BasicCliListItem;
-pub struct BasicCliTable {
+pub struct Render;
+pub struct Item;
+pub struct Table {
     columns: Rc<Vec<usize>>
 }
-pub struct BasicCliRow {
+pub struct Row {
     columns: Rc<Vec<usize>>,
     row_id: usize
 }
+pub enum RawStream {
+    Stdout,
+    Null
+}
 
-impl Row for BasicCliRow {
+impl render::Row for Row {
     fn value<T: Display>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
             print!("|{: ^width$}|", val, width=self.columns[self.row_id]);
@@ -61,8 +66,8 @@ impl Row for BasicCliRow {
     }
 }
 
-impl Table for BasicCliTable {
-    type Row = BasicCliRow;
+impl render::Table for Table {
+    type Row = Row;
 
     fn col<T: AsRef<str>>(&mut self, name: T, length: usize) -> &mut Self {
         if let Some(ptr) = Rc::get_mut(&mut self.columns) {
@@ -74,14 +79,14 @@ impl Table for BasicCliTable {
 
     fn row(&mut self) -> Self::Row {
         println!();
-        BasicCliRow {
+        Row {
             columns: self.columns.clone(),
             row_id: 0
         }
     }
 }
 
-impl Drop for BasicCliTable {
+impl Drop for Table {
     fn drop(&mut self) {
         println!();
         for v in &*self.columns {
@@ -91,7 +96,7 @@ impl Drop for BasicCliTable {
     }
 }
 
-impl Item for BasicCliListItem {
+impl render::Item for Item {
     fn value<T: Display>(&mut self, val: T) -> &mut Self {
         print!(" {}", val);
         self
@@ -113,22 +118,22 @@ impl Item for BasicCliListItem {
     }
 }
 
-impl Drop for BasicCliListItem {
+impl Drop for Item {
     fn drop(&mut self) {
         println!()
     }
 }
 
-impl List for BasicCliRender {
-    type Item = BasicCliListItem;
+impl render::List for Render {
+    type Item = Item;
 
     fn item(&mut self) -> Self::Item {
         print!("  *");
-        BasicCliListItem
+        Item
     }
 }
 
-impl Group for BasicCliRender {
+impl render::Group for Render {
     fn value<N: AsRef<str>, T: Display>(&mut self, name: N, val: T) -> &mut Self {
         println!("  {}: {}", name.as_ref(), val);
         self
@@ -149,11 +154,6 @@ impl Group for BasicCliRender {
     }
 }
 
-pub enum RawStream {
-    Stdout,
-    Null
-}
-
 impl Write for RawStream {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         match self {
@@ -170,15 +170,15 @@ impl Write for RawStream {
     }
 }
 
-impl Render for BasicCliRender {
-    type Table = BasicCliTable;
-    type Group = BasicCliRender;
-    type List = BasicCliRender;
+impl render::Render for Render {
+    type Table = Table;
+    type Group = Render;
+    type List = Render;
     type RawStream = RawStream;
 
     fn table<T: AsRef<str>>(&mut self, name: T) -> Self::Table {
         println!("{}:", name.as_ref());
-        BasicCliTable {
+        Table {
             columns: Rc::new(Vec::new())
         }
     }

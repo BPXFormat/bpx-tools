@@ -93,7 +93,7 @@ macro_rules! impl_debugger {
             fn available_commands(&self) -> &[Command] {
                 match self {
                     $(
-                        Self::$name(v) => v.available_commands()
+                        Self::$name(v) => v.available_commands(),
                     )*
                 }
             }
