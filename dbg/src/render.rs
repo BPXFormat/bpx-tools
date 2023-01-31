@@ -48,8 +48,8 @@ pub trait Group {
 }
 
 pub trait Item {
-    fn value<N: AsRef<str>, T: Display>(&mut self, name: N, val: T) -> &mut Self;
-    fn valued<N: AsRef<str>, T: Debug>(&mut self, name: N, val: T) -> &mut Self;
+    fn value<T: Display>(&mut self, val: T) -> &mut Self;
+    fn valued<T: Debug>(&mut self, val: T) -> &mut Self;
     fn description<D: AsRef<str>>(&mut self, description: D) -> &mut Self;
     fn note<N: AsRef<str>>(&mut self, note: N) -> &mut Self;
 }
