@@ -94,11 +94,10 @@ impl<R: Render> Runtime<R> {
                     if commands.iter().any(|v| v.cmd == cmd) {
                         self.debugger.on_command(&mut self.render, cmd, args).map_err(Error::Debugger)?;
                     } else {
-                        println!("Unknown command '{}', type 'help' for help", cmd);
+                        self.render.text(format!("Unknown command '{}', type 'help' for help", cmd));
                     }
                 }
             }
-            println!();
         }
         Ok(())
     }

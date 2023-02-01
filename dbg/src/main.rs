@@ -48,6 +48,7 @@ fn run(mut runtime: Runtime<Render>) -> std::io::Result<()> {
         if let Err(e) = runtime.run(&line) {
             println!("failed to run '{}': {}", line, e);
         }
+        println!();
         print_prompt();
     }
     Ok(())
