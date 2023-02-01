@@ -60,20 +60,20 @@ impl<'a> Display for Error<'a> {
 
 impl<'a> std::error::Error for Error<'a> { }
 
-pub struct Runtime<R> {
+pub struct Controller<R> {
     debugger: DynamicDebugger<BufReader<File>>,
     render: R
 }
 
-impl<R: Render> Runtime<R> {
-    pub fn new(path: &Path, render: R) -> Result<Runtime<R>, Error<'static>> {
+impl<R: Render> Controller<R> {
+    pub fn new(path: &Path, render: R) -> Result<Controller<R>, Error<'static>> {
         let file = File::open(path).map_err(Error::Io)?;
         let container = Container::open(BufReader::new(file))
             .map_err(Error::Bpx)?;
         let fuckingrust = container.main_header().ty;
         let debugger = DynamicDebugger::from_type_code(fuckingrust, container)
             .ok_or_else(|| Error::UnknownTypeCode(fuckingrust))?.map_err(Error::Debugger)?;
-        Ok(Runtime {
+        Ok(Controller {
             debugger,
             render
         })

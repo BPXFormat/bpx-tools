@@ -29,7 +29,7 @@
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::io::Write;
-use bpxdbg::Runtime;
+use bpxdbg::Controller;
 use crate::cli_render::Render;
 
 mod cli_render;
@@ -40,7 +40,7 @@ fn print_prompt() {
     lock.flush().unwrap();
 }
 
-fn run(mut runtime: Runtime<Render>) -> std::io::Result<()> {
+fn run(mut runtime: Controller<Render>) -> std::io::Result<()> {
     let lines = BufReader::new(std::io::stdin()).lines();
     print_prompt();
     for line in lines {
@@ -62,7 +62,7 @@ fn main() {
     }
     args.next();
     let path = args.next().map(PathBuf::from).unwrap();
-    let runtime = match Runtime::new(&path, Render) {
+    let runtime = match Controller::new(&path, Render) {
         Ok(v) => v,
         Err(e) => {
             eprintln!("couldn't load target: {}", e);
