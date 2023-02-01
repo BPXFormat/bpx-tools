@@ -26,51 +26,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
-use std::io::Write;
-use bpxdbg::Controller;
-use crate::render_backend::CliRender;
+mod cli_render;
 
-mod render_backend;
-
-fn print_prompt() {
-    let mut lock = std::io::stdout().lock();
-    write!(lock, "> ").unwrap();
-    lock.flush().unwrap();
-}
-
-fn run(mut runtime: Controller<CliRender>) -> std::io::Result<()> {
-    let lines = BufReader::new(std::io::stdin()).lines();
-    print_prompt();
-    for line in lines {
-        let line = line?;
-        if let Err(e) = runtime.run(&line) {
-            println!("failed to run '{}': {}", line, e);
-        }
-        println!();
-        print_prompt();
-    }
-    Ok(())
-}
-
-fn main() {
-    let mut args = std::env::args_os();
-    if args.len() != 2 {
-        eprintln!("USAGE: {:?} <path to executable file>", args.next());
-        std::process::exit(1);
-    }
-    args.next();
-    let path = args.next().map(PathBuf::from).unwrap();
-    let runtime = match Controller::new(&path, CliRender) {
-        Ok(v) => v,
-        Err(e) => {
-            eprintln!("couldn't load target: {}", e);
-            std::process::exit(1);
-        }
-    };
-    if let Err(e) = run(runtime) {
-        eprintln!("failed to read standard input: {}", e);
-        std::process::exit(1);
-    }
-}
+pub use cli_render::Render as CliRender;
