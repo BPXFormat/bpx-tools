@@ -51,7 +51,7 @@ pub enum RawStream {
 impl render::Row for Row {
     fn value<T: Display>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
-            print!("|{: ^width$}|", val, width=self.columns[self.row_id]);
+            print!("| {: <width$} |", val, width=self.columns[self.row_id] - 2);
         }
         self.row_id += 1;
         self
@@ -59,7 +59,7 @@ impl render::Row for Row {
 
     fn valued<T: Debug>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
-            print!("|{: ^width$?}|", val, width=self.columns[self.row_id]);
+            print!("| {: <width$?} |", val, width=self.columns[self.row_id] - 2);
         }
         self.row_id += 1;
         self
