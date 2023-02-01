@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 bpx = { version = "4.0.0-beta-8.1.0", path = "../../bpx-rs", features = ["package", "shader", "sd-formatting"] }
-serde = { version = "1.0.152", features = ["derive"] }
+json = "0.12.4"

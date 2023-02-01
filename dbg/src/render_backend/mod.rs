@@ -27,5 +27,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 mod cli_render;
+mod json_bpxsd;
+mod json_render;
 
 pub use cli_render::Render as CliRender;
+pub use json_render::Render as JsonRender;
