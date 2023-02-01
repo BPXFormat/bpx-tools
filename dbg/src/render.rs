@@ -36,10 +36,10 @@ pub trait Row {
 }
 
 pub trait Table {
-    type Row: Row;
+    type Row<'a>: Row where Self: 'a;
 
     fn col<T: AsRef<str>>(&mut self, name: T, length: usize) -> &mut Self;
-    fn row(&mut self) -> Self::Row;
+    fn row(&mut self) -> Self::Row<'_>;
 }
 
 pub trait Group {
@@ -56,9 +56,9 @@ pub trait Item {
 }
 
 pub trait List {
-    type Item: Item;
+    type Item<'a>: Item where Self: 'a;
 
-    fn item(&mut self) -> Self::Item;
+    fn item(&mut self) -> Self::Item<'_>;
 }
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]

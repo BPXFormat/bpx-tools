@@ -28,7 +28,6 @@
 
 use std::fmt::{Debug, Display};
 use std::io::Write;
-use std::rc::Rc;
 use bpx::sd::formatting::{Format, IndentType};
 use bpx::sd::Value;
 use bpxdbg::render;
@@ -37,10 +36,10 @@ use bpxdbg::render::ContentType;
 pub struct Render;
 pub struct Item;
 pub struct Table {
-    columns: Rc<Vec<usize>>
+    columns: Vec<usize>
 }
-pub struct Row {
-    columns: Rc<Vec<usize>>,
+pub struct Row<'a> {
+    columns: &'a [usize],
     row_id: usize
 }
 pub enum RawStream {
@@ -48,7 +47,7 @@ pub enum RawStream {
     Null
 }
 
-impl render::Row for Row {
+impl<'a> render::Row for Row<'a> {
     fn value<T: Display>(&mut self, val: T) -> &mut Self {
         if self.row_id < self.columns.len() {
             print!("| {: <width$} |", val, width=self.columns[self.row_id] - 2);
@@ -67,20 +66,18 @@ impl render::Row for Row {
 }
 
 impl render::Table for Table {
-    type Row = Row;
+    type Row<'a> = Row<'a>;
 
     fn col<T: AsRef<str>>(&mut self, name: T, length: usize) -> &mut Self {
-        if let Some(ptr) = Rc::get_mut(&mut self.columns) {
-            ptr.push(length);
-            print!("┌{:─^width$}┐", name.as_ref(), width=length);
-        }
+        self.columns.push(length);
+        print!("┌{:─^width$}┐", name.as_ref(), width=length);
         self
     }
 
-    fn row(&mut self) -> Self::Row {
+    fn row(&mut self) -> Self::Row<'_> {
         println!();
         Row {
-            columns: self.columns.clone(),
+            columns: &self.columns,
             row_id: 0
         }
     }
@@ -125,9 +122,9 @@ impl Drop for Item {
 }
 
 impl render::List for Render {
-    type Item = Item;
+    type Item<'a> = Item;
 
-    fn item(&mut self) -> Self::Item {
+    fn item(&mut self) -> Self::Item<'_> {
         print!("  *");
         Item
     }
@@ -179,7 +176,7 @@ impl render::Render for Render {
     fn table<T: AsRef<str>>(&mut self, name: T) -> Self::Table {
         println!("{}:", name.as_ref());
         Table {
-            columns: Rc::new(Vec::new())
+            columns: Vec::new()
         }
     }
 
