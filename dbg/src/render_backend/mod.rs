@@ -26,9 +26,8 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-mod cli_render;
-mod json_bpxsd;
-mod json_render;
+mod cli;
+mod json;
 
-pub use cli_render::Render as CliRender;
-pub use json_render::Render as JsonRender;
+pub use cli::Render as CliRender;
+pub use self::json::Render as JsonRender;

@@ -32,7 +32,9 @@ use bpx::sd::Value;
 use bpxdbg::render::{ContentType};
 use bpxdbg::render;
 use json::{JsonValue, object};
-use super::json_bpxsd::ValueExt;
+use self::bpxsd::ValueExt;
+
+mod bpxsd;
 
 pub struct Render;
 pub struct List(JsonValue);
