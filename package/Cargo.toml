@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 clap = "2.27.0"
-bpx = { version = "4.0.0-beta-8.0.2", features = ["package"] }
+bpx = { version = "4.0.0-rc.10.0.0", features = ["package"] }
 
 [dev-dependencies]
 assert_cmd = "1.0.4"

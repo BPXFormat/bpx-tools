@@ -28,14 +28,14 @@
 
 use std::{fs::File, path::Path};
 
-use bpx::package::{utils::pack_file, Builder, Package};
+use bpx::package::{util::pack_file, CreateOptions, Package};
 use clap::ArgMatches;
 
 use crate::error::PackError;
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
 {
-    let mut encoder = Package::create(File::create(file)?, Builder::new().type_code(*b"BD"))?;
+    let mut encoder = Package::create(CreateOptions::new(File::create(file)?).type_code(*b"BD"))?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
     for v in files {

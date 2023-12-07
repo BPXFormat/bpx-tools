@@ -26,6 +26,7 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::convert::TryInto;
 use std::io::{Read, Seek};
 use bpx::core::Container;
 use crate::debug::{check_arg, Command, Debugger, Error, New};

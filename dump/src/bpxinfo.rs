@@ -43,13 +43,15 @@ use clap::ArgMatches;
 use super::type_ext_maps::get_type_ext_map;
 use crate::error::{Error, Result};
 
+const DEFAULT_MAX_DEPTH: usize = u16::MAX as _;
+
 fn print_main_header<T>(bpx: &Container<T>)
 {
     println!("====> BPX Main Header <====");
-    println!("Type: {}", bpx.get_main_header().ty as char);
-    println!("Version: {}", bpx.get_main_header().version);
-    println!("File size: {}", bpx.get_main_header().file_size);
-    println!("Number of sections: {}", bpx.get_main_header().section_num);
+    println!("Type: {}", bpx.main_header().ty as char);
+    println!("Version: {}", bpx.main_header().version);
+    println!("File size: {}", bpx.main_header().file_size);
+    println!("Number of sections: {}", bpx.main_header().section_num);
     println!("====> End <====");
     println!();
 }
@@ -58,8 +60,9 @@ fn print_sht<T>(bpx: &Container<T>)
 {
     println!("====> BPX Section Header Table <====");
     for handle in bpx.sections() {
-        let header = bpx.sections().header(handle);
-        println!("Section #{}:", bpx.sections().index(handle));
+        let info = &bpx.sections()[handle];
+        let header = info.header();
+        println!("Section #{}:", info.index());
         println!("\tType: {}", header.ty);
         println!("\tSize (after compression): {}", header.csize);
         println!("\tSize: {}", header.size);
@@ -102,13 +105,13 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
 {
     println!("====> BPX TypeExt <====");
     if hex {
-        hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
+        hex_print(bpx.main_header().type_ext.as_ref(), &mut std::io::stdout())?;
         println!();
     } else {
-        match get_type_ext_map(bpx.get_main_header().ty) {
-            Some(func) => func(&bpx.get_main_header().type_ext),
+        match get_type_ext_map(bpx.main_header().ty) {
+            Some(func) => func(&bpx.main_header().type_ext.into_inner()),
             None => {
-                hex_print(&bpx.get_main_header().type_ext, &mut std::io::stdout())?;
+                hex_print(bpx.main_header().type_ext.as_ref(), &mut std::io::stdout())?;
                 println!();
             }
         }
@@ -138,7 +141,7 @@ fn print_section_sd<T: Read + Seek, TWrite: Write>(
     out: &mut TWrite
 ) -> Result<()>
 {
-    let object = bpx::sd::Value::read(section)?;
+    let object = bpx::sd::Value::read(section, DEFAULT_MAX_DEPTH)?;
     let lazy = object.as_object().unwrap().format(IndentType::Spaces, 4);
     writeln!(out, "{}", lazy)?;
     Ok(())
