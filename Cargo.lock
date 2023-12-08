@@ -65,7 +65,7 @@ checksum = "327762f6e5a765692301e5bb513e0d9fef63be86bbc14528052b1cd3e6f03e07"
 
 [[package]]
 name = "bpx"
-version = "4.0.0-rc.10.0.0"
+version = "4.0.0-rc.10.0.1"
 dependencies = [
  "bytesutil",
  "elsa",
@@ -78,9 +78,9 @@ dependencies = [
 
 [[package]]
 name = "bpx"
-version = "4.0.0-rc.10.0.0"
+version = "4.0.0-rc.10.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "222df1991a96c96a099d12bba9c7763c3b4c1267aeb67c2fd718f35f29130a3c"
+checksum = "1590de23956d302e099830860b9b85bf7f54b114b17fca9bffd4d0c8497a5260"
 dependencies = [
  "bytesutil",
  "elsa",
@@ -95,7 +95,7 @@ dependencies = [
 name = "bpxdbg"
 version = "0.1.0"
 dependencies = [
- "bpx 4.0.0-rc.10.0.0",
+ "bpx 4.0.0-rc.10.0.1",
  "json",
 ]
 
@@ -104,7 +104,7 @@ name = "bpxdump"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
- "bpx 4.0.0-rc.10.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bpx 4.0.0-rc.10.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap",
  "predicates",
 ]
@@ -114,7 +114,7 @@ name = "bpxp"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
- "bpx 4.0.0-rc.10.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bpx 4.0.0-rc.10.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap",
  "file_diff",
  "serial_test",

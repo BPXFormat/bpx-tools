@@ -49,6 +49,9 @@ fn main()
         (@arg section_id: -d --dump +takes_value "Dumps the content of the section identified by the given index")
         (@arg out_file: -o --output +takes_value "Save dump output to a file")
         (@arg bpxsd: --bpxsd "Parse the section to print (specified in -d) as a BPX Structured Data Object (BPXSD)")
+        (@arg skip_signature: --skipsignature "Skip file signature verification")
+        (@arg skip_version: --skipversion "Skip file version verification")
+        (@arg skip_checksum: --skipchecksum "Skip checksum verifications")
     )
     .get_matches();
     let file = matches.value_of("file").unwrap();

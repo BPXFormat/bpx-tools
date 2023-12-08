@@ -37,6 +37,7 @@ use bpx::core::{
     header::{FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ, FLAG_COMPRESS_ZLIB},
     Container
 };
+use bpx::core::options::OpenOptions;
 use bpx::sd::formatting::{Format, IndentType};
 use clap::ArgMatches;
 
@@ -204,7 +205,11 @@ fn open_section_print<T: Read + Seek, TWrite: Write>(
 
 pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
 {
-    let mut bpx = Container::open(BufReader::new(File::open(file)?))?;
+    let options = OpenOptions::new(BufReader::new(File::open(file)?))
+        .skip_signature(matches.is_present("skip_signature"))
+        .skip_versions(matches.is_present("skip_version"))
+        .skip_checksum(matches.is_present("skip_checksum"));
+    let mut bpx = Container::open(options)?;
 
     print_main_header(&bpx);
     if matches.is_present("metadata") {
