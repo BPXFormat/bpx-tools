@@ -27,7 +27,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::path::Path;
-
+use bp3d_util::result::ResultExt;
 use clap::clap_app;
 
 mod bpxinfo;
@@ -38,7 +38,7 @@ mod type_ext_maps;
 fn main()
 {
     let matches = clap_app!(bpxdump =>
-        (version: "1.0")
+        (version: "2.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")
         (about: "Dumps content of a given BPX file")
         (@arg file: -f --file +required +takes_value "Path to the BPX file to debug")
@@ -56,11 +56,5 @@ fn main()
     .get_matches();
     let file = matches.value_of("file").unwrap();
 
-    match bpxinfo::run(Path::new(file), &matches) {
-        Ok(()) => std::process::exit(0),
-        Err(e) => {
-            eprintln!("{}", e);
-            std::process::exit(1)
-        }
-    }
+    bpxinfo::run(Path::new(file), &matches).expect_exit("bpxdump", 1);
 }
