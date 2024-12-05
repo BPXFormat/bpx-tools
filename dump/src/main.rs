@@ -26,17 +26,16 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::Path;
 use bp3d_util::result::ResultExt;
 use clap::clap_app;
+use std::path::Path;
 
 mod bpxinfo;
 mod error;
 //mod printsd;
 mod type_ext_maps;
 
-fn main()
-{
+fn main() {
     let matches = clap_app!(bpxdump =>
         (version: "2.0")
         (author: "BlockProject3D <https://github.com/BlockProject3D>")

@@ -30,14 +30,14 @@ use std::{
     fs::File,
     io::{BufReader, Read, Seek, Write},
     path::Path,
-    string::String
+    string::String,
 };
 
+use bpx::core::options::OpenOptions;
 use bpx::core::{
     header::{FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ, FLAG_COMPRESS_ZLIB},
-    Container
+    Container,
 };
-use bpx::core::options::OpenOptions;
 use bpx::sd::formatting::{Format, IndentType};
 use clap::ArgMatches;
 
@@ -46,8 +46,7 @@ use crate::error::{Error, Result};
 
 const DEFAULT_MAX_DEPTH: usize = u16::MAX as _;
 
-fn print_main_header<T>(bpx: &Container<T>)
-{
+fn print_main_header<T>(bpx: &Container<T>) {
     println!("====> BPX Main Header <====");
     println!("Type: {}", bpx.main_header().ty as char);
     println!("Version: {}", bpx.main_header().version);
@@ -57,8 +56,7 @@ fn print_main_header<T>(bpx: &Container<T>)
     println!();
 }
 
-fn print_sht<T>(bpx: &Container<T>)
-{
+fn print_sht<T>(bpx: &Container<T>) {
     println!("====> BPX Section Header Table <====");
     for handle in bpx.sections() {
         let info = &bpx.sections()[handle];
@@ -91,8 +89,7 @@ fn print_sht<T>(bpx: &Container<T>)
     println!();
 }
 
-fn hex_print<TWrite: Write>(block: &[u8], output: &mut TWrite) -> Result<()>
-{
+fn hex_print<TWrite: Write>(block: &[u8], output: &mut TWrite) -> Result<()> {
     for (i, byte) in block.iter().enumerate() {
         if i != 0 && i % 16 == 0 {
             writeln!(output)?;
@@ -102,8 +99,7 @@ fn hex_print<TWrite: Write>(block: &[u8], output: &mut TWrite) -> Result<()>
     Ok(())
 }
 
-fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
-{
+fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()> {
     println!("====> BPX TypeExt <====");
     if hex {
         hex_print(bpx.main_header().type_ext.as_ref(), &mut std::io::stdout())?;
@@ -114,7 +110,7 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
             None => {
                 hex_print(bpx.main_header().type_ext.as_ref(), &mut std::io::stdout())?;
                 println!();
-            }
+            },
         }
     }
     println!("====> End <====");
@@ -124,9 +120,8 @@ fn print_metadata<T>(bpx: &Container<T>, hex: bool) -> Result<()>
 
 fn print_section_hex<T: Read + Seek, TWrite: Write>(
     mut section: T,
-    out: &mut TWrite
-) -> Result<()>
-{
+    out: &mut TWrite,
+) -> Result<()> {
     let mut buf: [u8; 8192] = [0; 8192];
     let mut res = section.read(&mut buf)?;
     while res > 0 {
@@ -137,11 +132,7 @@ fn print_section_hex<T: Read + Seek, TWrite: Write>(
     Ok(())
 }
 
-fn print_section_sd<T: Read + Seek, TWrite: Write>(
-    section: T,
-    out: &mut TWrite
-) -> Result<()>
-{
+fn print_section_sd<T: Read + Seek, TWrite: Write>(section: T, out: &mut TWrite) -> Result<()> {
     let object = bpx::sd::Value::read(section, DEFAULT_MAX_DEPTH)?;
     let lazy = object.as_object().unwrap().format(IndentType::Spaces, 4);
     writeln!(out, "{}", lazy)?;
@@ -150,9 +141,8 @@ fn print_section_sd<T: Read + Seek, TWrite: Write>(
 
 fn print_section_raw<T: Read + Seek, TWrite: Write>(
     mut section: T,
-    out: &mut TWrite
-) -> Result<()>
-{
+    out: &mut TWrite,
+) -> Result<()> {
     let mut buf: [u8; 8192] = [0; 8192];
     let mut res = section.read(&mut buf)?;
     while res > 0 {
@@ -163,25 +153,22 @@ fn print_section_raw<T: Read + Seek, TWrite: Write>(
 }
 
 #[derive(Copy, Clone, Eq, PartialEq)]
-enum PrintFormat
-{
+enum PrintFormat {
     Hex,
     Sd,
-    Raw
+    Raw,
 }
 
-struct PrintOptions<'a, TWrite: Write>
-{
+struct PrintOptions<'a, TWrite: Write> {
     section_id_str: &'a str,
     output: TWrite,
-    format: PrintFormat
+    format: PrintFormat,
 }
 
 fn open_section_print<T: Read + Seek, TWrite: Write>(
     bpx: &mut Container<T>,
-    mut opts: PrintOptions<TWrite>
-) -> Result<()>
-{
+    mut opts: PrintOptions<TWrite>,
+) -> Result<()> {
     let section_id: u32 = match opts.section_id_str.parse() {
         Ok(id) => id,
         Err(e) => {
@@ -189,22 +176,21 @@ fn open_section_print<T: Read + Seek, TWrite: Write>(
                 "Could not parse section index {} ({})",
                 opts.section_id_str, e
             )));
-        }
+        },
     };
     let section = match bpx.sections().find_by_index(section_id) {
         Some(section) => section,
-        None => return Err(Error::SectionNotFound(section_id))
+        None => return Err(Error::SectionNotFound(section_id)),
     };
     let mut section = bpx.sections().load(section)?;
     match opts.format {
         PrintFormat::Hex => print_section_hex(&mut *section, &mut opts.output),
         PrintFormat::Sd => print_section_sd(&mut *section, &mut opts.output),
-        PrintFormat::Raw => print_section_raw(&mut *section, &mut opts.output)
+        PrintFormat::Raw => print_section_raw(&mut *section, &mut opts.output),
     }
 }
 
-pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
-{
+pub fn run(file: &Path, matches: &ArgMatches) -> Result<()> {
     let options = OpenOptions::new(BufReader::new(File::open(file)?))
         .skip_signature(matches.is_present("skip_signature"))
         .skip_versions(matches.is_present("skip_version"))
@@ -238,8 +224,8 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
                     PrintOptions {
                         format,
                         section_id_str,
-                        output: std::io::stdout()
-                    }
+                        output: std::io::stdout(),
+                    },
                 )?;
             },
             Some(s) => {
@@ -248,10 +234,10 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()>
                     PrintOptions {
                         format,
                         section_id_str,
-                        output: File::create(s)?
-                    }
+                        output: File::create(s)?,
+                    },
                 )?;
-            }
+            },
         }
     }
     Ok(())
