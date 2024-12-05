@@ -85,33 +85,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "bpx"
-version = "4.0.0-rc.12.0.0"
-dependencies = [
- "bytesutil",
- "elsa",
- "libz-sys",
- "lzma-sys",
- "num_cpus",
- "once_cell",
- "tempfile",
-]
-
-[[package]]
-name = "bpxdbg"
-version = "0.1.0"
-dependencies = [
- "bpx 4.0.0-rc.12.0.0",
- "json",
-]
-
-[[package]]
 name = "bpxdump"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
  "bp3d-util",
- "bpx 4.0.0-rc.10.0.1",
+ "bpx",
  "clap",
  "predicates",
 ]
@@ -121,7 +100,7 @@ name = "bpxp"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
- "bpx 4.0.0-rc.10.0.1",
+ "bpx",
  "clap",
  "file_diff",
  "serial_test",
@@ -246,12 +225,6 @@ checksum = "61124eeebbd69b8190558df225adf7e4caafce0d743919e5d6b19652314ec5ec"
 dependencies = [
  "cfg-if",
 ]
-
-[[package]]
-name = "json"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd"
 
 [[package]]
 name = "lazy_static"
