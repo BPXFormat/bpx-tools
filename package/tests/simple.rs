@@ -38,8 +38,7 @@ Name = 'LICENSE.txt', Size = 1518 byte(s)
 
 #[test]
 #[serial]
-fn pack_unpack()
-{
+fn pack_unpack() {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
         .args(&["-f", "test.bpx", "-p", "../LICENSE.txt"])
@@ -57,8 +56,7 @@ fn pack_unpack()
 
 #[test]
 #[serial]
-fn pack_list()
-{
+fn pack_list() {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
         .args(&["-f", "test.bpx", "-p", "../LICENSE.txt"])

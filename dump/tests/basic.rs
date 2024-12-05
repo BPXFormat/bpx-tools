@@ -39,8 +39,7 @@ Number of sections: 2
 ";
 
 #[test]
-fn dump_header()
-{
+fn dump_header() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "tests/test.bpx"])
@@ -49,8 +48,7 @@ fn dump_header()
 }
 
 #[test]
-fn error()
-{
+fn error() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
         .args(&["-f", "doesnotexist.bpx"])

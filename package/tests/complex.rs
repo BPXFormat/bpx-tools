@@ -34,8 +34,7 @@ use serial_test::serial;
 
 #[test]
 #[serial]
-fn pack_unpack()
-{
+fn pack_unpack() {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
         .args(&["-f", "test.bpx", "-p", "../target/debug/bpxdump"])

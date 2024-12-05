@@ -35,8 +35,7 @@ mod list;
 mod pack;
 mod unpack;
 
-fn main()
-{
+fn main() {
     //The verbose option cannot be implemented yet due to the inflexibility of the BPXP format
     //The BPXP format cannot yet deal with random file access: a single file cannot be accessed without unpacking the whole archive
     let matches = clap_app!(bpxp =>
@@ -59,7 +58,7 @@ fn main()
             Err(e) => {
                 eprintln!("{}", e);
                 std::process::exit(1);
-            }
+            },
         }
     } else if matches.is_present("pack") {
         match pack::run(Path::new(file), &matches) {
@@ -67,7 +66,7 @@ fn main()
             Err(e) => {
                 eprintln!("{}", e);
                 std::process::exit(1);
-            }
+            },
         }
     } else if matches.is_present("ls") {
         match list::run(Path::new(file)) {
@@ -75,7 +74,7 @@ fn main()
             Err(e) => {
                 eprintln!("{}", e);
                 std::process::exit(1);
-            }
+            },
         }
     } else {
         eprintln!("Please specify an action");

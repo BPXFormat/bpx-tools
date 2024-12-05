@@ -33,8 +33,7 @@ use clap::ArgMatches;
 
 use crate::error::PackError;
 
-pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError>
-{
+pub fn run(file: &Path, matches: &ArgMatches) -> Result<(), PackError> {
     let mut encoder = Package::create(CreateOptions::new(File::create(file)?).type_code(*b"BD"))?;
     let files: Vec<&str> = matches.values_of("files").unwrap().collect();
 
