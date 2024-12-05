@@ -26,40 +26,17 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::fmt::{Display, Formatter};
+use bp3d_util::simple_error;
 
-use bpx::macros::impl_err_conversion;
-
-pub enum Error {
-    Bpx(bpx::core::error::Error),
-    Io(std::io::Error),
-    Sd(bpx::sd::error::Error),
-    TypeError(bpx::sd::error::TypeError),
-    Parsing(String),
-    SectionNotFound(u32),
-    BinaryOutput,
-}
-
-impl_err_conversion!(
-    Error {
-        bpx::core::error::Error => Bpx,
-        std::io::Error => Io,
-        bpx::sd::error::Error => Sd,
-        bpx::sd::error::TypeError => TypeError
-    }
-);
-
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::Bpx(e) => write!(f, "BPX error: {}", e),
-            Error::Io(e) => write!(f, "IO error: {}", e),
-            Error::Sd(e) => write!(f, "BPXSD error: {}", e),
-            Error::Parsing(s) => write!(f, "Could not parse value ({})", s),
-            Error::SectionNotFound(id) => write!(f, "Could not find section with index {}", id),
-            Error::BinaryOutput => f.write_str("Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue"),
-            Error::TypeError(e) => write!(f, "BPXSD type error: {}", e)
-        }
+simple_error! {
+    pub Error {
+        (impl From) Bpx(bpx::core::error::Error) => "bpx error: {}",
+        (impl From) Io(std::io::Error) => "io error: {}",
+        (impl From) Sd(bpx::sd::error::Error) => "bpxsd error: {}",
+        (impl From) TypeError(bpx::sd::error::TypeError) => "bpxsd type error: {}",
+        (impl From) Parsing(String) => "could not parse value ({})",
+        (impl From) SectionNotFound(u32) => "could not find section with index {}",
+        (impl From) BinaryOutput => "outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue"
     }
 }
 

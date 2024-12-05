@@ -56,5 +56,5 @@ fn error() {
     assert
         .failure()
         .stdout("")
-        .stderr(predicate::str::contains("IO error:"));
+        .stderr(predicate::str::contains("io error:"));
 }

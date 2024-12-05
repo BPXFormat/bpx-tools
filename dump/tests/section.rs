@@ -48,7 +48,7 @@ Number of sections: 2
 ";
 
 const EXPECTED_ERROR_RAW: &str =
-    "Outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue
+    "bpxdump: outputing binary data to standard output can mess-up your terminal, please use --force if you're sure to continue
 ";
 
 #[test]
