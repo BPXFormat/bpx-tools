@@ -8,9 +8,9 @@ edition = "2018"
 
 [dependencies]
 clap = "2.27.0"
-bpx = { version = "4.0.0-rc.10.0.1", features = ["sd", "sd-formatting"] }
+bpx = { version = "4.0.0-rc.12.0.0", features = ["sd", "sd-formatting"] }
 bp3d-util = { version = "1.4.0", features = ["result", "simple-error"] }
 
 [dev-dependencies]
-assert_cmd = "1.0.4"
-predicates = "1.0.8"
+assert_cmd = "2.0.16"
+predicates = "3.1.2"

@@ -32,8 +32,14 @@ use assert_cmd::Command;
 use file_diff::diff;
 use serial_test::serial;
 
+#[cfg(unix)]
 const EXPECTED_OUTPUT: &str = "Decoding object table:
 Name = 'LICENSE.txt', Size = 1518 byte(s)
+";
+
+#[cfg(windows)]
+const EXPECTED_OUTPUT_WIN: &str = "Decoding object table:
+Name = 'LICENSE.txt', Size = 1545 byte(s)
 ";
 
 #[test]
@@ -66,6 +72,9 @@ fn pack_list() {
         .unwrap()
         .args(&["-f", "test.bpx", "-l"])
         .assert();
+    #[cfg(windows)]
+    assert.success().stdout(EXPECTED_OUTPUT_WIN).stderr("");
+    #[cfg(unix)]
     assert.success().stdout(EXPECTED_OUTPUT).stderr("");
     remove_file("test.bpx").unwrap();
 }
