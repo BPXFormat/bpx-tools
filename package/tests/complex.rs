@@ -32,12 +32,23 @@ use assert_cmd::Command;
 use file_diff::diff;
 use serial_test::serial;
 
+#[cfg(unix)]
+const TARGET_FILE: &str = "../target/debug/bpxdump";
+#[cfg(windows)]
+const TARGET_FILE: &str = "../target/debug/bpxdump.exe";
+
+#[cfg(unix)]
+const FILE_NAME: &str = "bpxdump";
+
+#[cfg(windows)]
+const FILE_NAME: &str = "bpxdump.exe";
+
 #[test]
 #[serial]
 fn pack_unpack() {
     let assert = Command::cargo_bin("bpxp")
         .unwrap()
-        .args(&["-f", "test.bpx", "-p", "../target/debug/bpxdump"])
+        .args(&["-f", "test.bpx", "-p", TARGET_FILE])
         .assert();
     assert.success().stdout("").stderr("");
     let assert = Command::cargo_bin("bpxp")
@@ -45,6 +56,6 @@ fn pack_unpack() {
         .args(&["-f", "test.bpx", "-u"])
         .assert();
     assert.success().stdout("").stderr("");
-    assert!(diff("bpxdump", "../target/debug/bpxdump"));
-    remove_file("bpxdump").unwrap();
+    assert!(diff(FILE_NAME, TARGET_FILE));
+    remove_file(FILE_NAME).unwrap();
 }
