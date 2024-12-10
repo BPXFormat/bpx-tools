@@ -26,44 +26,56 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use assert_cmd::Command;
+use std::path::PathBuf;
+use clap::{Parser, ValueEnum};
 
-const EXPECTED_OUTPUT: &str = "====> BPX Main Header <====
-Type: P
-Version: 1
-File size: 1632
-Number of sections: 2
-====> End <====
-
-====> BPX Section Header Table <====
-Section #0:
-	Type: 255
-	Size (after compression): 15
-	Size: 15
-	Flags:  CheckWeak
-Section #1:
-	Type: 1
-	Size (after compression): 1529
-	Size: 1529
-	Flags:  CheckWeak
-====> End <====
-
-";
-
-#[test]
-fn dump_sht_1() {
-    let assert = Command::cargo_bin("bpxdump")
-        .unwrap()
-        .args(&["-f", "tests/test.bpx", "-t"])
-        .assert();
-    assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+#[derive(Copy, Clone, Debug, ValueEnum, Eq, PartialEq)]
+pub enum FileOption {
+    SkipSignature,
+    SkipVersion,
+    SkipChecksum
 }
 
-#[test]
-fn dump_sht_2() {
-    let assert = Command::cargo_bin("bpxdump")
-        .unwrap()
-        .args(&["-f", "tests/test.bpx", "--table"])
-        .assert();
-    assert.success().stdout(EXPECTED_OUTPUT).stderr("");
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+pub struct Args {
+    /// Path to the BPX file to open.
+    #[arg(short='f')]
+    pub file: PathBuf,
+
+    /// Prints the section header table (SHT).
+    #[arg(short='t', long="table")]
+    pub sht: bool,
+
+    /// Prints metadata (metadata here refers to the TypeExt block).
+    #[arg(long="metadata", short='m')]
+    pub metadata: bool,
+
+    /// Prints data in hex.
+    #[arg(long="hex", short='x')]
+    pub hex: bool,
+
+    /// Force prints data to terminal ignoring potential terminal destruction.
+    #[arg(long="force")]
+    pub force: bool,
+
+    /// Dumps the content of the section identified by the given index.
+    #[arg(short='d', long="dump")]
+    pub section: Option<u32>,
+
+    /// Save dump output to a file.
+    #[arg(long="output", short='o')]
+    pub output: Option<PathBuf>,
+
+    /// Parse the section to print (specified in -d) as a BPX Structured Data Object (BPXSD).
+    #[arg(long="bpxsd", short='s')]
+    pub bpxsd: bool,
+
+    /// Specifies the offset at which to start the decoding of the section to dump.
+    #[arg(long="offset")]
+    pub offset: Option<u32>,
+
+    /// Specifies the options to use when opening the BPX file.
+    #[arg(long="option", short='O')]
+    pub options: Vec<FileOption>
 }

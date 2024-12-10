@@ -1,4 +1,4 @@
-// Copyright (c) 2021, BlockProject 3D
+// Copyright (c) 2024, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -86,7 +86,7 @@ Section #1:
 fn dump_metadata_1() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "-sm"])
+        .args(&["-f", "tests/test.bpx", "-tm"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT).stderr("");
 }
@@ -95,7 +95,7 @@ fn dump_metadata_1() {
 fn dump_metadata_2() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "--sht", "--metadata"])
+        .args(&["-f", "tests/test.bpx", "--table", "--metadata"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT).stderr("");
 }
@@ -104,7 +104,7 @@ fn dump_metadata_2() {
 fn dump_metadata_hex_1() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "-smx"])
+        .args(&["-f", "tests/test.bpx", "-tmx"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT_HEX).stderr("");
 }
@@ -113,7 +113,7 @@ fn dump_metadata_hex_1() {
 fn dump_metadata_hex_2() {
     let assert = Command::cargo_bin("bpxdump")
         .unwrap()
-        .args(&["-f", "tests/test.bpx", "--sht", "--metadata", "--hex"])
+        .args(&["-f", "tests/test.bpx", "--table", "--metadata", "--hex"])
         .assert();
     assert.success().stdout(EXPECTED_OUTPUT_HEX).stderr("");
 }

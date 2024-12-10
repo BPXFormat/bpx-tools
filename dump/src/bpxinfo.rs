@@ -1,4 +1,4 @@
-// Copyright (c) 2021, BlockProject 3D
+// Copyright (c) 2024, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -39,10 +39,10 @@ use bpx::core::{
     Container,
 };
 use bpx::sd::formatting::{Format, IndentType};
-use clap::ArgMatches;
 
 use super::type_ext_maps::get_type_ext_map;
 use crate::error::{Error, Result};
+use crate::args::{FileOption, Args};
 
 const DEFAULT_MAX_DEPTH: usize = u16::MAX as _;
 
@@ -159,8 +159,8 @@ enum PrintFormat {
     Raw,
 }
 
-struct PrintOptions<'a, TWrite: Write> {
-    section_id_str: &'a str,
+struct PrintOptions<TWrite: Write> {
+    section_id: u32,
     output: TWrite,
     format: PrintFormat,
 }
@@ -169,18 +169,9 @@ fn open_section_print<T: Read + Seek, TWrite: Write>(
     bpx: &mut Container<T>,
     mut opts: PrintOptions<TWrite>,
 ) -> Result<()> {
-    let section_id: u32 = match opts.section_id_str.parse() {
-        Ok(id) => id,
-        Err(e) => {
-            return Err(Error::Parsing(format!(
-                "Could not parse section index {} ({})",
-                opts.section_id_str, e
-            )));
-        },
-    };
-    let section = match bpx.sections().find_by_index(section_id) {
+    let section = match bpx.sections().find_by_index(opts.section_id) {
         Some(section) => section,
-        None => return Err(Error::SectionNotFound(section_id)),
+        None => return Err(Error::SectionNotFound(opts.section_id)),
     };
     let mut section = bpx.sections().load(section)?;
     match opts.format {
@@ -190,40 +181,40 @@ fn open_section_print<T: Read + Seek, TWrite: Write>(
     }
 }
 
-pub fn run(file: &Path, matches: &ArgMatches) -> Result<()> {
+pub fn run(file: &Path, args: &Args) -> Result<()> {
     let options = OpenOptions::new(BufReader::new(File::open(file)?))
-        .skip_signature(matches.is_present("skip_signature"))
-        .skip_versions(matches.is_present("skip_version"))
-        .skip_checksum(matches.is_present("skip_checksum"));
+        .skip_signature(args.options.contains(&FileOption::SkipSignature))
+        .skip_versions(args.options.contains(&FileOption::SkipVersion))
+        .skip_checksum(args.options.contains(&FileOption::SkipChecksum));
     let mut bpx = Container::open(options)?;
 
     print_main_header(&bpx);
-    if matches.is_present("metadata") {
-        print_metadata(&bpx, matches.is_present("hex"))?;
+    if args.metadata {
+        print_metadata(&bpx, args.hex)?;
     }
-    if matches.is_present("sht") {
+    if args.sht {
         print_sht(&bpx);
     }
-    if let Some(section_id_str) = matches.value_of("section_id") {
+    if let Some(section_id) = args.section {
         let format = {
-            if matches.is_present("bpxsd") {
+            if args.bpxsd {
                 PrintFormat::Sd
-            } else if matches.is_present("hex") {
+            } else if args.hex {
                 PrintFormat::Hex
             } else {
                 PrintFormat::Raw
             }
         };
-        if format == PrintFormat::Raw && !matches.is_present("force") {
+        if format == PrintFormat::Raw && !args.force {
             return Err(Error::BinaryOutput);
         }
-        match matches.value_of("out_file") {
+        match &args.output {
             None => {
                 open_section_print(
                     &mut bpx,
                     PrintOptions {
                         format,
-                        section_id_str,
+                        section_id,
                         output: std::io::stdout(),
                     },
                 )?;
@@ -233,7 +224,7 @@ pub fn run(file: &Path, matches: &ArgMatches) -> Result<()> {
                     &mut bpx,
                     PrintOptions {
                         format,
-                        section_id_str,
+                        section_id,
                         output: File::create(s)?,
                     },
                 )?;
